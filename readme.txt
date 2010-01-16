@@ -10,7 +10,7 @@ For plugin authors. Showcase your plugins on your WordPress site. You only updat
 
 == Description ==
 
-This plugin is for WordPress plugin __authors__, not __users__. It showcases your plugins on your WordPress blog, using the WordPress.org plugin repository as a source. It generates both a directory listing page, and the content of each plugin's page. All you have to provide is the title; the rest comes form the repository. You get to control the markup of each type of page using intuitive WordPress shortcodes.
+This plugin is for WordPress plugin __authors__, not __users__. It showcases your plugins on your WordPress blog, using the WordPress.org plugin repository as a source. It generates both a directory listing page, and the content of each plugin's page. All you have to provide is the title; the rest comes from the repository. You get to control the markup of each type of page using intuitive WordPress shortcodes.
 
 == Installation ==
 

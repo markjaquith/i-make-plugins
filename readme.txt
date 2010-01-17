@@ -29,5 +29,8 @@ Be patient. The API responses are cached for a little while.
 
 == Changelog ==
 
+= 1.1 =
+* Added [implist_version] template tag.
+
 = 1.0 =
 * Initial release

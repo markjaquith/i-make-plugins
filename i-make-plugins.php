@@ -1,30 +1,30 @@
-<?php 
-/* 
-Plugin Name: I Make Plugins 
-Description: Shows off the WordPress plugins you've written 
+<?php
+/*
+Plugin Name: I Make Plugins
+Description: Shows off the WordPress plugins you've written
 Version: 1.1
-Author: Mark Jaquith 
+Author: Mark Jaquith
 Plugin URI: http://txfx.net/wordpress-plugins/i-make-plugins/
 Author URI: http://coveredwebservices.com/
-*/ 
+*/
 
-/* 
-    Copyright 2009 Mark Jaquith (email: mark.gpl@txfx.net) 
+/*
+    Copyright 2009 Mark Jaquith (email: mark.gpl@txfx.net)
 
-    This program is free software; you can redistribute it and/or modify 
-    it under the terms of the GNU General Public License as published by 
-    the Free Software Foundation; either version 2 of the License, or 
-    (at your option) any later version. 
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful, 
-    but WITHOUT ANY WARRANTY; without even the implied warranty of 
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
-    GNU General Public License for more details. 
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License 
-    along with this program; if not, write to the Free Software 
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA 
-*/ 
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
 
 function cws_imp_init() {
 	load_plugin_textdomain( 'cws-imp', '', plugin_basename( dirname( __FILE__ ) ) );
@@ -64,7 +64,7 @@ function cws_imp_get_plugin_readme( $page_id ) {
 	}
 
 	// Fetch via API
-	require_once( ABSPATH . '/wp-admin/includes/plugin-install.php' );	
+	require_once( ABSPATH . '/wp-admin/includes/plugin-install.php' );
 	$readme = plugins_api( 'plugin_information', array('slug' => $slug, 'fields' => array( 'short_description' => true ) ) );
 	if ( is_wp_error( $readme ) )
 		return false;
@@ -190,14 +190,14 @@ function cws_imp_plugins_list( $content ) {
 		cws_imp_add_shortcodes( $shortcodes );
 		$content = cws_imp_plugin_list_html() . $content;
 		cws_imp_remove_shortcodes( $shortcodes );
-		
+
 		$cws_imp_prevent_recursion = false;
 		return $content;
 	}
 }
 
 function cws_imp_filter_faq( $faq ) {
-	$faq = preg_split( '#<h4>#ims', $faq );	
+	$faq = preg_split( '#<h4>#ims', $faq );
 	array_shift( $faq );
 	$questions = array();
 
@@ -209,7 +209,7 @@ function cws_imp_filter_faq( $faq ) {
 		$a = trim( str_replace( array( '<p>', '</p>' ), array( '', '' ), $a ) );
 		$questions[$q] = $a;
 	}
-	
+
 	$return = '';
 	foreach ( $questions as $q => $a ) {
 			$return .= '<strong>Q. '. $q . '</strong>' . "\n";
@@ -322,7 +322,7 @@ function cws_imp_options_page() {
 <table class="form-table">
 	<tr valign="top">
 	<th scope="row"><label for="cws_imp_container_id"> <?php esc_html_e( 'Plugin container page', 'cws-imp' ); ?></label></th>
-	<td><?php wp_dropdown_pages( array( 'name' => 'cws_imp_container_id', 'echo' => 1, 'show_option_none' => __('- Select -'), 'selected' => get_option( 'cws_imp_container_id' ) ) ); ?></td> 
+	<td><?php wp_dropdown_pages( array( 'name' => 'cws_imp_container_id', 'echo' => 1, 'show_option_none' => __('- Select -'), 'selected' => get_option( 'cws_imp_container_id' ) ) ); ?></td>
 	</tr>
 </table>
 <h3><?php esc_html_e( 'Templates', 'cws-imp' ); ?></h3>

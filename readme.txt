@@ -29,5 +29,13 @@ Be patient. The API responses are cached for a little while.
 
 == Changelog ==
 
+= 1.1 =
+* Added `[implist_version]`, `[imp_min_version]`, `[imp_tested_version]`, `[imp_slug]`, `[imp_downloads]` shortcodes
+* Added optional advanced loop structure for FAQ, using `[imp_faq]`, `[imp_faq_question]`, `[imp_faq_answer]`, `[/imp_faq]`
+* Added optional advanced loop structure for changelog, using `[imp_changelog]`, `[imp_changelog_version]`, `[imp_changelog_changes]`, `[imp_changelog_change]`, `[/imp_changelog_changes]`, `[/imp_changelog]`
+* Allowed any tag to have a conditional wrapper counterpart by adding `if_` to the front of its shortcode, e.g. `[if_imp_changelog]`
+* Better inline documentation
+* Moved donation suggestion box to the bottom of the options form
+
 = 1.0 =
 * Initial release

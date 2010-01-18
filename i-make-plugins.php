@@ -275,7 +275,7 @@ function cws_imp_parse_faq( $faq ) {
 function cws_imp_output_faq( $questions ) {
 	$return = '';
 	foreach ( (array) $questions as $q => $a ) {
-			$return .= '<strong>Q. ', 'cws-imp' ) . $q . '</strong>' . "\n";
+			$return .= '<strong>Q. ' . $q . '</strong>' . "\n";
 			$return .= '<strong>A.</strong> ' . $a . "\n\n";
 	}
 	return $return;

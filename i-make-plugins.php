@@ -89,7 +89,60 @@ function cws_imp_plugin_list_html() {
 	return $return;
 }
 
-/* [implist] shortcodes */
+
+/* [imp*] shortcodes */
+
+function cws_imp_shortcode( $atts, $content, $tag ) {
+	global $post, $imp_readme;
+	$imp_readme = cws_imp_get_plugin_readme( $post->ID ); // fetch it, just in case we need it.
+	switch ( $tag ) :
+		case 'implist' :
+			return cws_imp_shortcode_implist( $atts, $content, $tag );
+			break;
+		case 'imp_name' :
+		case 'implist_name' :
+			return get_the_title();
+			break;
+		case 'imp_version' :
+		case 'implist_version' :
+			return $imp_readme->version;
+			break;
+		case 'imp_url' :
+		case 'implist_url' :
+			return get_permalink();
+			break;
+		case 'implist_desc' :
+			return $post->post_excerpt;
+			break;
+		case 'imp_zip_url' :
+			if ( isset( $imp_readme->download_link ) )
+				return $imp_readme->download_link;
+			break;
+		case 'imp_full_desc' :
+			if ( isset( $imp_readme->sections['description'] ) )
+				return $imp_readme->sections['description'];
+			break;
+		case 'imp_installation' :
+			if ( isset( $imp_readme->sections['installation'] ) )
+				return $imp_readme->sections['installation'];
+			break;
+		case 'imp_changelog' :
+			if ( isset( $imp_readme->sections['changelog'] ) )
+				return cws_imp_filter_changelog( $imp_readme->sections['changelog'] );
+			break;
+		case 'imp_faq' :
+			if ( isset( $imp_readme->sections['faq'] ) )
+				return cws_imp_filter_faq( $imp_readme->sections['faq'] );
+			break;
+	endswitch;
+}
+
+function cws_imp_shortcode_conditional( $atts, $content, $tag ) {
+	$test_tag = preg_replace( '#^(imp|implist)_if_#', '$1_', $tag );
+	$test_output = cws_imp_shortcode( NULL, NULL, $test_tag );
+	if ( !empty( $test_output ) )
+		return do_shortcode( $content );
+}
 
 function cws_imp_shortcode_implist( $atts, $content = NULL ) {
 	global $post;
@@ -106,99 +159,22 @@ function cws_imp_shortcode_implist( $atts, $content = NULL ) {
 	return $return;
 }
 
-function cws_imp_shortcode_implist_name( $atts ) {
-	return get_the_title();
-}
-
-function cws_imp_shortcode_implist_version( $atts ) {
-	global $post;
-	$imp_readme = cws_imp_get_plugin_readme( $post->ID );
-    return $imp_readme->version;
-}
-
-
-function cws_imp_shortcode_implist_url( $atts ) {
-	return get_permalink();
-}
-
-function cws_imp_shortcode_implist_desc( $atts ) {
-	global $post;
-	return $post->post_excerpt;
-}
-
-/* [imp_*] shortcodes */
-
-function cws_imp_shortcode_imp_name( $atts ) {
-	return get_the_title();
-}
-
-function cws_imp_shortcode_imp_url( $atts ) {
-	return get_permalink();
-}
-
-function cws_imp_shortcode_imp_zip_url( $atts ) {
-	global $imp_readme;
-	return $imp_readme->download_link;
-}
-
-function cws_imp_shortcode_imp_full_desc( $atts ) {
-	global $imp_readme;
-	if ( $imp_readme->sections['description'] )
-		return $imp_readme->sections['description'];
-}
-
-function cws_imp_shortcode_imp_if_installation( $atts, $content = NULL ) {
-	global $imp_readme;
-	if ( $imp_readme->sections['installation'] )
-		return do_shortcode( $content );
-}
-
-function cws_imp_shortcode_imp_installation( $atts ) {
-	global $imp_readme;
-	return $imp_readme->sections['installation'];
-}
-
-function cws_imp_shortcode_imp_if_changelog( $atts, $content = NULL ) {
-	global $imp_readme;
-	if ( $imp_readme->sections['changelog'] )
-		return do_shortcode( $content );
-}
-
-function cws_imp_shortcode_imp_changelog( $atts, $content = NULL ) {
-	global $imp_readme;
-	if ( $imp_readme->sections['changelog'] )
-		return cws_imp_filter_changelog( $imp_readme->sections['changelog'] );
-}
-
-function cws_imp_shortcode_imp_if_faq( $atts, $content = NULL ) {
-	global $imp_readme;
-	if ( $imp_readme->sections['faq'] )
-		return do_shortcode( $content );
-}
-
-function cws_imp_shortcode_imp_faq( $atts, $content = NULL ) {
-	global $imp_readme;
-	if ( $imp_readme->sections['faq'] )
-		return cws_imp_filter_faq( $imp_readme->sections['faq'] );
-}
-
-function cws_imp_shortcode_imp_version( $atts ) {
-	global $imp_readme;
-	return $imp_readme->version;
-}
-
-
-
 function cws_imp_add_shortcodes( $array ) {
 	foreach ( (array) $array as $shortcode ) {
-		$function = 'cws_imp_shortcode_' . $shortcode;
-		add_shortcode( $shortcode, $function );
+		$conditional = preg_replace( '#^(imp|implist)_#', '$1_if_', $shortcode );
+		add_shortcode( $shortcode, 'cws_imp_shortcode' );
+		if ( $conditional != $shortcode )
+			add_shortcode( $conditional, 'cws_imp_shortcode_conditional' );
 	}
 }
 
 function cws_imp_remove_shortcodes( $array ) {
-	foreach ( (array) $array as $shortcode )
+	foreach ( (array) $array as $shortcode ) {
+		$conditional = preg_replace( '#^(imp|implist)_#', '$1_if_', $shortcode );
 		remove_shortcode( $shortcode );
+		if ( $conditional != $shortcode )
+			remove_shortcode( $conditional );
+	}
 }
 
 
@@ -221,15 +197,21 @@ function cws_imp_plugins_list( $content ) {
 }
 
 function cws_imp_filter_faq( $faq ) {
-	$faq = explode( "\n\n", $faq );
+	$faq = preg_split( '#<h4>#ims', $faq );	
+	array_shift( $faq );
+	foreach ( (array) $faq as $f ) {
+		$f = '<h4>' . $f;
+		preg_match('#<h4>(.*?)</h4>#ims', $f, $matches );
+		$q = trim( $matches[1] );
+		$a = str_replace( $matches[0], '', $f );
+		$a = trim( str_replace( array( '<p>', '</p>' ), array( '', '' ), $a ) );
+		$questions[$q] = $a;
+	}
 	$return = '';
-	$i = -1;
-	foreach ( $faq as $f ) {
-		$i++;
-		if ( $i % 2 )
-			$return .= '<strong>A.</strong> '. $f . "\n\n";
-		else
-			$return .= '<strong>Q. ' . $f . '</strong>' . "\n";
+
+	foreach ( $questions as $q => $a ) {
+			$return .= '<strong>Q. '. $q . '</strong>' . "\n";
+			$return .= '<strong>A.</strong> ' . $a . "\n\n";
 	}
 	return $return;
 }
@@ -240,11 +222,17 @@ function cws_imp_filter_changelog( $changelog ) {
 	$changes = array();
 	foreach ( (array) $array as $a ) {
 		$change = preg_split( '#<ul>#ims', $a );
-		if ( trim( $change[0] ) )
-			$changes[trim( $change[0] )] = '<ul>' . trim( $change[1] ) . '</ul>';
+		if ( trim( $change[0] ) ) {
+			preg_match_all( '#<li>(.*)</li>#ims', trim( $change[1] ), $change_matches );
+			$changes[trim( $change[0] )] = $change_matches[1];
+		}
 	}
 	foreach ( (array) $changes as $v => $cs ) {
-		$return .= "<strong>$v</strong>\n$cs\n\n";
+		$return .= "<strong>$v</strong>\n<ul>\n";
+		foreach ( (array) $cs as $c ) {
+			$return .= "<li>$c</li>\n";
+		}
+		$return .= "</ul>\n\n";
 	}
 	return $return;
 }

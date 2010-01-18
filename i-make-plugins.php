@@ -2,7 +2,7 @@
 /*
 Plugin Name: I Make Plugins
 Description: Shows off the WordPress plugins you've written
-Version: 1.1
+Version: 1.2-beta
 Author: Mark Jaquith
 Plugin URI: http://txfx.net/wordpress-plugins/i-make-plugins/
 Author URI: http://coveredwebservices.com/
@@ -125,6 +125,7 @@ function cws_imp_shortcode( $atts, $content, $tag ) {
 		case 'implist_desc' :
 			return $post->post_excerpt;
 			break;
+		case 'implist_zip_url' :
 		case 'imp_zip_url' :
 			if ( isset( $imp_readme->download_link ) )
 				return $imp_readme->download_link;
@@ -246,7 +247,7 @@ function cws_imp_plugins_list( $content ) {
 		return $content;
 	} else {
 		$cws_imp_prevent_recursion = true;
-		$shortcodes = array( 'implist', 'implist_name', 'implist_url', 'implist_version', 'implist_desc' );
+		$shortcodes = array( 'implist', 'implist_name', 'implist_url', 'implist_version', 'implist_desc', 'implist_zip_url' );
 		cws_imp_add_shortcodes( $shortcodes );
 		$content = cws_imp_plugin_list_html() . $content;
 		cws_imp_remove_shortcodes( $shortcodes );
@@ -380,7 +381,7 @@ function cws_imp_options_page() {
 	<?php _e( '<p>This controls what will be displayed on the container page. You can use the following tags to loop through the plugins:</p>
 	<p><code>[implist]</code>&mdash;<code>[/implist]</code></p>
 	<p>Within that loop, you can use the following tags:</p>
-	<p><code>[implist_name]</code> <code>[implist_url]</code> <code>[implist_version]</code> <code>[implist_desc]</code></p>', 'cws-imp' ); ?><textarea rows="20" cols="50" class="large-text code" id="cws_imp_plugin_list_template" name="cws_imp_plugin_list_template"><?php form_option( 'cws_imp_plugin_list_template' ); ?></textarea></fieldset></td>
+	<p><code>[implist_name]</code> <code>[implist_url]</code> <code>[implist_version]</code> <code>[implist_desc]</code> <code>[implist_zip_url]</code></p>', 'cws-imp' ); ?><textarea rows="20" cols="50" class="large-text code" id="cws_imp_plugin_list_template" name="cws_imp_plugin_list_template"><?php form_option( 'cws_imp_plugin_list_template' ); ?></textarea></fieldset></td>
 	</tr>
 
 	<tr valign="top">

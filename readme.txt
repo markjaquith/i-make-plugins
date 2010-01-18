@@ -18,9 +18,9 @@ This plugin is for WordPress plugin __authors__, not __users__. It showcases you
 
 == Frequently Asked Questions ==
 
-= How do I get more control of the FAQ and Changelog sections? =
+= Why isn't my plugin pulling information from the repository? =
 
-For now, you have to use the markup the plugin provides. A future version will create loop-style tags, allowing you to customize the markup to your satisfaction.
+Its page "slug" much match the "slug" of the plugin in the repository. That is how the match is made.
 
 = I've updated my plugin's `readme.txt` file. Why aren't the changes showing? =
 

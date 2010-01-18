@@ -199,16 +199,18 @@ function cws_imp_plugins_list( $content ) {
 function cws_imp_filter_faq( $faq ) {
 	$faq = preg_split( '#<h4>#ims', $faq );	
 	array_shift( $faq );
+	$questions = array();
+
 	foreach ( (array) $faq as $f ) {
 		$f = '<h4>' . $f;
 		preg_match('#<h4>(.*?)</h4>#ims', $f, $matches );
 		$q = trim( $matches[1] );
-		$a = str_replace( $matches[0], '', $f );
+		$a = trim( str_replace( $matches[0], '', $f ) );
 		$a = trim( str_replace( array( '<p>', '</p>' ), array( '', '' ), $a ) );
 		$questions[$q] = $a;
 	}
+	
 	$return = '';
-
 	foreach ( $questions as $q => $a ) {
 			$return .= '<strong>Q. '. $q . '</strong>' . "\n";
 			$return .= '<strong>A.</strong> ' . $a . "\n\n";
@@ -217,18 +219,22 @@ function cws_imp_filter_faq( $faq ) {
 }
 
 function cws_imp_filter_changelog( $changelog ) {
-	$array = preg_split( "#</ul>#ims", $changelog );
-	$return = '';
+	$changelog = preg_split( "#<h4>#ims", $changelog );
+	array_shift( $changelog );
 	$changes = array();
-	foreach ( (array) $array as $a ) {
-		$change = preg_split( '#<ul>#ims', $a );
-		if ( trim( $change[0] ) ) {
-			preg_match_all( '#<li>(.*)</li>#ims', trim( $change[1] ), $change_matches );
-			$changes[trim( $change[0] )] = $change_matches[1];
-		}
+
+	foreach ( (array) $changelog as $c ) {
+		$c = '<h4>' . $c;
+		preg_match('#<h4>(.*?)</h4>#ims', $c, $matches );
+		$v = trim( $matches[1] );
+		$cs = trim( str_replace( $matches[0], '', $c ) );
+		preg_match_all( '#<li>(.*)</li>#ims', $cs, $change_matches );
+		$changes[$v] = $change_matches[1];
 	}
+
+	$return = '';
 	foreach ( (array) $changes as $v => $cs ) {
-		$return .= "<strong>$v</strong>\n<ul>\n";
+		$return .= "<h4>$v</h4>\n<ul>\n";
 		foreach ( (array) $cs as $c ) {
 			$return .= "<li>$c</li>\n";
 		}

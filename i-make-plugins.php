@@ -68,8 +68,10 @@ function cws_imp_get_plugin_readme( $page_id ) {
 		return $cws_imp_readme_cache[$slug];
 
 	// Next, try postmeta cache
-	if ( $ts = get_post_meta( $page_id, '_cws_imp_readme_timestamp', true ) && $ts > time() - 3600 && $rm = get_post_meta( $page_id, '_cws_imp_readme', true ) ) { // fresh
-		$cws_imp_readme_cache[$slug] = unserialize($rm);
+	$ts = get_post_meta( $page_id, '_cws_imp_readme_timestamp', true );
+	$rm = get_post_meta( $page_id, '_cws_imp_readme', true );
+	if ( $rm && $ts && $ts > time() - 3600 ) { // fresh
+		$cws_imp_readme_cache[$slug] = unserialize( $rm );
 		return $rm;
 	}
 

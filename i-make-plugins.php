@@ -140,6 +140,14 @@ function cws_imp_shortcode( $atts, $content, $tag ) {
 			if ( isset( $imp_readme->sections['installation'] ) )
 				return $imp_readme->sections['installation'];
 			break;
+		case 'imp_screenshots' :
+			if ( isset( $imp_readme->sections['screenshots'] ) )
+				return $imp_readme->sections['screenshots'];
+			break;
+		case 'imp_other_notes' :
+			if ( isset ( $imp_readme->sections['other_notes'] ) )
+				return $imp_readme->sections['other_notes'];
+			break;
 		case 'imp_changelog' :
 			if ( isset( $imp_readme->sections['changelog'] ) ) {
 				$imp_changes = cws_imp_parse_changelog( $imp_readme->sections['changelog'] );
@@ -328,7 +336,7 @@ function cws_imp_plugin( $content ) {
 				die();
 			}
 			/**/
-			$shortcodes = array( 'imp_name', 'imp_url', 'imp_zip_url', 'imp_full_desc', 'imp_if_installation', 'imp_installation', 'imp_if_changelog', 'imp_changelog', 'imp_if_faq', 'imp_faq', 'imp_version', 'imp_min_version', 'imp_tested_version', 'imp_slug', 'imp_downloads' );
+			$shortcodes = array( 'imp_name', 'imp_url', 'imp_zip_url', 'imp_full_desc', 'imp_if_installation', 'imp_installation', 'imp_if_changelog', 'imp_changelog', 'imp_if_faq', 'imp_faq', 'imp_version', 'imp_min_version', 'imp_tested_version', 'imp_slug', 'imp_downloads', 'if_imp_screenshots', 'imp_screenshots', 'if_imp_other_notes', 'imp_other_notes' );
 			cws_imp_add_shortcodes( $shortcodes );
 			$content = '';
 			$content .= do_shortcode( get_option( 'cws_imp_plugin_template' ) );

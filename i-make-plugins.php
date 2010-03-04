@@ -72,7 +72,7 @@ function cws_imp_get_plugin_readme( $page_id ) {
 	$rm = get_post_meta( $page_id, '_cws_imp_readme', true );
 	if ( $rm && $ts && $ts > time() - 3600 ) { // fresh
 		$cws_imp_readme_cache[$slug] = unserialize( $rm );
-		return $rm;
+		return $cws_imp_readme_cache[$slug];
 	}
 
 	// Fetch via API

@@ -1,9 +1,9 @@
-=== Plugin Name ===
+uch === Plugin Name ===
 Contributors: markjaquith
 Donate link: http://txfx.net/wordpress-plugins/donate/
 Tags: plugin, directory, list, plugin directory
 Requires at least: 2.8
-Tested up to: 2.9.1
+Tested up to: 3.0.1
 Stable tag: trunk
 
 For plugin authors. Showcase your plugins on your WordPress site. You only update your readme.txt files!
@@ -20,7 +20,7 @@ This plugin is for WordPress plugin __authors__, not __users__. It showcases you
 
 = Why isn't my plugin pulling information from the repository? =
 
-Its page "slug" much match the "slug" of the plugin in the repository. That is how the match is made.
+Its page "slug" must match the "slug" of the plugin in the repository. That is how the match is made.
 
 = I've updated my plugin's `readme.txt` file. Why aren't the changes showing? =
 

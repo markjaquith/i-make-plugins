@@ -6,10 +6,11 @@ Version: 1.2-beta
 Author: Mark Jaquith
 Plugin URI: http://txfx.net/wordpress-plugins/i-make-plugins/
 Author URI: http://coveredwebservices.com/
+License: GPLv2
 */
 
 /*
-    Copyright 2009 Mark Jaquith (email: mark.gpl@txfx.net)
+    Copyright 2010 Mark Jaquith (email: mark.gpl@txfx.net)
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -33,6 +34,7 @@ class CWS_I_Make_Plugins {
 
 	function __construct() {
 		self::$instance =& $this;
+		add_action( 'admin_init',  array( $this, 'admin_init'   )     );
 		add_action( 'admin_menu',  array( $this, 'admin_menu'   )     );
 		add_filter( 'the_content', array( $this, 'plugins_list' ), 15 );
 		add_filter( 'the_content', array( $this, 'imp_plugin'   ),  9 );
@@ -54,6 +56,47 @@ class CWS_I_Make_Plugins {
 			}
 			update_option( 'cws_imp_current_version', self::$version );
 		}
+	}
+
+	function admin_init() {
+		// Container Page Section
+		add_settings_section( 'cws-imp-settings-container-page', __( 'Container page', 'cws-imp' ), NULL, 'cws-imp-settings' );
+		register_setting( 'cws-imp-settings', 'cws_imp_container_id' );
+		add_settings_field( 'cws-imp-container-id', __( 'Plugin container page', 'cws-imp' ), array( $this, 'field_container_page' ), 'cws-imp-settings', 'cws-imp-settings-container-page' );
+
+		// Templates
+		add_settings_section( 'cws-imp-settings-templates', __( 'Templates', 'cws-imp' ), array( $this, 'about_templates' ), 'cws-imp-settings' );
+		register_setting( 'cws-imp-settings', 'cws_imp_plugin_list_template' );
+		add_settings_field( 'cws-imp-plugin-list-template', __( 'Plugin list template', 'cws-imp' ), array( $this, 'field_list_template' ), 'cws-imp-settings', 'cws-imp-settings-templates' );
+		register_setting( 'cws-imp-settings', 'cws_imp_plugin_template' );
+		add_settings_field( 'cws-imp-plugin-template', __( 'Plugin template', 'cws-imp' ), array( $this, 'field_template' ), 'cws-imp-settings', 'cws-imp-settings-templates' );
+	}
+
+	function about_templates() {
+		_e( '<p>The templating system is based on WordPress Shortcodes, which look like HTML tags but with square brackets.</p>
+		<p>Any of the shortcodes can be turned into a conditional wrapper by adding <code>if_</code> to the front of the tag. So to test <code>[implist_version]</code>, you could wrap some code in <code>[if_implist_version]</code> ... <code>[/if_implist_version]</code>.</p>
+		<p>Some loop tags can be used in a self-closing form, in which case the plugin will generate the HTML for you. You only have to use the advanced loop format if you want to choose your own HTML for the loop.</p>', 'cws-imp' );
+	}
+
+	function field_container_page() {
+		wp_dropdown_pages( array( 'name' => 'cws_imp_container_id', 'echo' => 1, 'show_option_none' => __('- Select -'), 'selected' => get_option( 'cws_imp_container_id' ) ) ); ?> <span class="description"><?php esc_html_e( 'Your plugin listing page. Each plugin should be a subpage of this, and each page slug should match its slug in the WordPress.org plugin repository.', 'cws-imp' ); ?></span><?php
+	}
+
+	function field_list_template() {
+		_e( '<p>This controls what will be displayed on the container page. You can use the following tags to loop through the plugins:</p>
+		<p><code>[implist]</code>&mdash;<code>[/implist]</code></p>
+		<p>Within that loop, you can use the following tags:</p>
+		<p><code>[implist_name]</code> <code>[implist_url]</code> <code>[implist_version]</code> <code>[implist_desc]</code> <code>[implist_zip_url]</code></p>', 'cws-imp' ); ?><textarea rows="20" cols="50" class="large-text code" id="cws_imp_plugin_list_template" name="cws_imp_plugin_list_template"><?php form_option( 'cws_imp_plugin_list_template' ); ?></textarea></fieldset><?php
+	}
+
+	function field_template() {
+		_e( '<p>This controls what will be displayed on each plugin page. You can use the following tags:</p>
+		<p><code>[imp_name]</code> <code>[imp_url]</code> <code>[imp_zip_url]</code> <code>[imp_full_desc]</code> <code>[imp_version]</code> <code>[imp_changelog]</code> <code>[imp_faq]</code> <code>[imp_installation]</code> <code>[imp_min_version]</code> <code>[imp_tested_version]</code> <code>[imp_slug]</code> <code>[imp_downloads]</code></p>
+		<p>An example advanced FAQ loop format is as follows:</p>
+		<p><code>[imp_faq]</code><br />&mdash;Q. <code>[imp_faq_question]</code><br />&mdash;A. <code>[imp_faq_answer]</code><br /><code>[/imp_faq]</code></p>
+		<p>An example advanced Changelog loop format is as follows:</p>
+		<p><code>[imp_changelog]</code><br />&mdash;<code>[imp_changelog_version]</code><br />&mdash;&mdash;<code>[imp_changelog_changes]</code><br />&mdash;&mdash;&mdash;<code>[imp_changelog_change]</code><br />&mdash;&mdash;<code>[/imp_changelog_changes]</code><br /><code>[/imp_changelog]</code></p>', 'cws-imp' ); ?>
+		<textarea rows="20" cols="50" class="large-text code" id="cws_imp_plugin_template" name="cws_imp_plugin_template"><?php form_option( 'cws_imp_plugin_template' ); ?></textarea><?php
 	}
 
 	function get_list_page_id() {
@@ -338,14 +381,6 @@ class CWS_I_Make_Plugins {
 		if ( $post->post_parent && $post->post_parent == get_option( 'cws_imp_container_id' ) ) {
 			$imp_readme = $this->get_plugin_readme( $post->ID );
 			if ( $imp_readme ) {
-				/*
-				if ( $_GET['test_plugin'] ) {
-					echo '<pre>';
-					var_dump( $imp_readme );
-					echo '</pre>';
-					die();
-				}
-				/**/
 				$shortcodes = array( 'imp_name', 'imp_url', 'imp_zip_url', 'imp_full_desc', 'imp_if_installation', 'imp_installation', 'imp_if_changelog', 'imp_changelog', 'imp_if_faq', 'imp_faq', 'imp_version', 'imp_min_version', 'imp_tested_version', 'imp_slug', 'imp_downloads', 'imp_screenshots', 'imp_other_notes' );
 				$this->add_shortcodes( $shortcodes );
 				$content = '';
@@ -359,19 +394,6 @@ class CWS_I_Make_Plugins {
 
 	function admin_menu() {
 		$hook = add_options_page( __( 'I Make Plugins', 'cws-imp' ), __( 'I Make Plugins', 'cws-imp' ), 'manage_options', 'cws-imp', array( $this, 'options_page' ) );
-		add_action( 'load-' . $hook, array( $this, 'options_save' ) );
-	}
-
-	function options_save() {
-		if ( !isset( $_POST['cws-imp-form'] ) )
-			return;
-		check_admin_referer( 'cws-imp-update' );
-		foreach ( array( 'container_id', 'plugin_list_template', 'plugin_template' ) as $setting ) {
-			$setting = 'cws_imp_' . $setting;
-			update_option( $setting, stripslashes( $_POST[$setting] ) );
-		}
-		wp_redirect( admin_url( 'options-general.php?page=cws-imp&updated=true' ) );
-		exit();
 	}
 
 	function options_page() {
@@ -379,45 +401,13 @@ class CWS_I_Make_Plugins {
 	<div class="wrap">
 	<?php screen_icon(); ?>
 	<h2><?php esc_html_e( 'I Make Plugins Settings', 'cws-imp' ); ?></h2>
-	<form method="post">
-	<?php wp_nonce_field( 'cws-imp-update' ); ?>
-	<input type="hidden" name="cws-imp-form" value="1" />
-	<h3><?php esc_html_e( 'Container page', 'cws-imp' ); ?></h3>
-	<table class="form-table">
-		<tr valign="top">
-		<th scope="row"><label for="cws_imp_container_id"> <?php esc_html_e( 'Plugin container page', 'cws-imp' ); ?></label></th>
-		<td><?php wp_dropdown_pages( array( 'name' => 'cws_imp_container_id', 'echo' => 1, 'show_option_none' => __('- Select -'), 'selected' => get_option( 'cws_imp_container_id' ) ) ); ?> <span class="description"><?php esc_html_e( 'Your plugin listing page. Each plugin should be a subpage of this, and each page slug should match its slug in the WordPress.org plugin repository.', 'cws-imp' ); ?></span></td>
-		</tr>
-	</table>
-	<h3><?php esc_html_e( 'About templates', 'cws-imp' ); ?></h3>
-	<?php _e( '<p>The templating system is based on WordPress Shortcodes, which look like HTML tags but with square brackets.</p>
-	<p>Any of the shortcodes can be turned into a conditional wrapper by adding <code>if_</code> to the front of the tag. So to test <code>[implist_version]</code>, you could wrap some code in <code>[if_implist_version]</code> ... <code>[/if_implist_version]</code>.</p>
-	<p>Some loop tags can be used in a self-closing form, in which case the plugin will generate the HTML for you. You only have to use the advanced loop format if you want to choose your own HTML for the loop.</p>', 'cws-imp' ); ?>
-	<h3><?php esc_html_e( 'Templates', 'cws-imp' ); ?></h3>
-	<table class="form-table">
-		<tr valign="top">
-		<th scope="row"><?php esc_html_e( 'Plugin list template', 'cws-imp' ); ?></th>
-		<td><fieldset><legend class="screen-reader-text"><span><?php esc_html_e( 'Plugin list template', 'cws-imp' ); ?></span></legend>
-		<?php _e( '<p>This controls what will be displayed on the container page. You can use the following tags to loop through the plugins:</p>
-		<p><code>[implist]</code>&mdash;<code>[/implist]</code></p>
-		<p>Within that loop, you can use the following tags:</p>
-		<p><code>[implist_name]</code> <code>[implist_url]</code> <code>[implist_version]</code> <code>[implist_desc]</code> <code>[implist_zip_url]</code></p>', 'cws-imp' ); ?><textarea rows="20" cols="50" class="large-text code" id="cws_imp_plugin_list_template" name="cws_imp_plugin_list_template"><?php form_option( 'cws_imp_plugin_list_template' ); ?></textarea></fieldset></td>
-		</tr>
 
-		<tr valign="top">
-		<th scope="row"><?php esc_html_e( 'Plugin template', 'cws-imp' ); ?></th>
-		<td><fieldset><legend class="screen-reader-text"><span><?php esc_html_e( 'Plugin template', 'cws-imp' ); ?></span></legend>
-		<?php _e( '<p>This controls what will be displayed on each plugin page. You can use the following tags:</p>
-		<p><code>[imp_name]</code> <code>[imp_url]</code> <code>[imp_zip_url]</code> <code>[imp_full_desc]</code> <code>[imp_version]</code> <code>[imp_changelog]</code> <code>[imp_faq]</code> <code>[imp_installation]</code> <code>[imp_min_version]</code> <code>[imp_tested_version]</code> <code>[imp_slug]</code> <code>[imp_downloads]</code></p>
-		<p>An example advanced FAQ loop format is as follows:</p>
-		<p><code>[imp_faq]</code><br />&mdash;Q. <code>[imp_faq_question]</code><br />&mdash;A. <code>[imp_faq_answer]</code><br /><code>[/imp_faq]</code></p>
-		<p>An example advanced Changelog loop format is as follows:</p>
-		<p><code>[imp_changelog]</code><br />&mdash;<code>[imp_changelog_version]</code><br />&mdash;&mdash;<code>[imp_changelog_changes]</code><br />&mdash;&mdash;&mdash;<code>[imp_changelog_change]</code><br />&mdash;&mdash;<code>[/imp_changelog_changes]</code><br /><code>[/imp_changelog]</code></p>', 'cws-imp' ); ?>
-		<textarea rows="20" cols="50" class="large-text code" id="cws_imp_plugin_template" name="cws_imp_plugin_template"><?php form_option( 'cws_imp_plugin_template' ); ?></textarea></td>
-		</tr>
-	</table>
-	<p class="submit"><input type="submit" class="button-primary" value="<?php esc_attr_e( 'Save Changes' ); ?>" /></p>
+	<form action="options.php" method="post">
+		<?php settings_fields( 'cws-imp-settings' ); ?>
+		<?php do_settings_sections( 'cws-imp-settings' ); ?>
+		<p class="submit"><input type="submit" class="button-primary" value="<?php _e( 'Save Changes' ); ?>" /></p>
 	</form>
+
 	<style>
 	#cws-imp-donate {
 		float: left;

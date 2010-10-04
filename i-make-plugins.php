@@ -31,6 +31,12 @@ class CWS_I_Make_Plugins {
 	static $instance;
 	static $version = '1.2';
 	var $prevent_recursion = false;
+	var $readme;
+	var $current_faq;
+	var $current_faq_answer;
+	var $current_changelog_v;
+	var $current_changes;
+	var $current_change;
 
 	function __construct() {
 		self::$instance =& $this;
@@ -158,8 +164,8 @@ class CWS_I_Make_Plugins {
 	}
 
 	function shortcode( $atts, $content, $tag ) {
-		global $post, $imp_readme, $imp_current_faq, $imp_current_faq_answer, $imp_current_changelog_v, $imp_current_changes, $imp_current_change;
-		$imp_readme = $this->get_plugin_readme( $post->ID ); // fetch it, just in case we need it.
+		global $post;
+		$this->readme = $this->get_plugin_readme( $post->ID ); // fetch it, just in case we need it.
 		$return = '';
 		switch ( $tag ) :
 			case 'implist' :
@@ -171,7 +177,7 @@ class CWS_I_Make_Plugins {
 				break;
 			case 'imp_version' :
 			case 'implist_version' :
-				return $imp_readme->version;
+				return $this->readme->version;
 				break;
 			case 'imp_url' :
 			case 'implist_url' :
@@ -182,63 +188,63 @@ class CWS_I_Make_Plugins {
 				break;
 			case 'implist_zip_url' :
 			case 'imp_zip_url' :
-				if ( isset( $imp_readme->download_link ) )
-					return $imp_readme->download_link;
+				if ( isset( $this->readme->download_link ) )
+					return $this->readme->download_link;
 				break;
 			case 'imp_full_desc' :
-				if ( isset( $imp_readme->sections['description'] ) )
-					return $imp_readme->sections['description'];
+				if ( isset( $this->readme->sections['description'] ) )
+					return $this->readme->sections['description'];
 				break;
 			case 'imp_installation' :
-				if ( isset( $imp_readme->sections['installation'] ) )
-					return $imp_readme->sections['installation'];
+				if ( isset( $this->readme->sections['installation'] ) )
+					return $this->readme->sections['installation'];
 				break;
 			case 'imp_screenshots' :
-				if ( isset( $imp_readme->sections['screenshots'] ) )
-					return $imp_readme->sections['screenshots'];
+				if ( isset( $this->readme->sections['screenshots'] ) )
+					return $this->readme->sections['screenshots'];
 				break;
 			case 'imp_other_notes' :
-				if ( isset ( $imp_readme->sections['other_notes'] ) )
-					return $imp_readme->sections['other_notes'];
+				if ( isset ( $this->readme->sections['other_notes'] ) )
+					return $this->readme->sections['other_notes'];
 				break;
 			case 'imp_changelog' :
-				if ( isset( $imp_readme->sections['changelog'] ) ) {
-					$imp_changes = $this->parse_changelog( $imp_readme->sections['changelog'] );
+				if ( isset( $this->readme->sections['changelog'] ) ) {
+					$this->changes = $this->parse_changelog( $this->readme->sections['changelog'] );
 					if ( $content ) {
 						$shortcodes = array( 'imp_changelog_version', 'imp_changelog_changes', 'imp_changelog_change' );
 						$this->add_shortcodes( $shortcodes );
-						foreach ( (array) $imp_changes as $imp_current_changelog_v => $imp_current_changes )
+						foreach ( (array) $this->changes as $this->current_changelog_v => $this->current_changes )
 							$return .= do_shortcode( $content );
 						$this->remove_shortcodes( $shortcodes );
-						unset( $imp_current_changelog_v, $imp_current_changes, $imp_current_change );
+						unset( $this->current_changelog_v, $this->current_changes, $this->current_change );
 						return $return;
 					} else {
-						return $this->output_changelog( $imp_changes );
+						return $this->output_changelog( $this->changes );
 					}
 				}
 				break;
 			case 'imp_changelog_version' :
-				return $imp_current_changelog_v;
+				return $this->current_changelog_v;
 				break;
 			case 'imp_changelog_changes' :
 				$shortcodes = array( 'imp_changelog_change' );
-				foreach ( (array) $imp_current_changes as $imp_current_change )
+				foreach ( (array) $this->current_changes as $this->current_change )
 					$return .= do_shortcode( $content );
 				return $return;
 				break;
 			case 'imp_changelog_change' :
-				return $imp_current_change;
+				return $this->current_change;
 				break;
 			case 'imp_faq' :
-				if ( isset( $imp_readme->sections['faq'] ) ) {
-					$imp_faqs = $this->parse_faq( $imp_readme->sections['faq'] );
+				if ( isset( $this->readme->sections['faq'] ) ) {
+					$imp_faqs = $this->parse_faq( $this->readme->sections['faq'] );
 					if ( $content ) {
 						$shortcodes = array( 'imp_faq_question', 'imp_faq_answer' );
 						$this->add_shortcodes( $shortcodes );
-						foreach ( $imp_faqs as $imp_current_faq => $imp_current_faq_answer )
+						foreach ( $imp_faqs as $this->current_faq => $this->current_faq_answer )
 							$return .= do_shortcode( $content );
 						$this->remove_shortcodes( $shortcodes );
-						unset( $imp_current_faq, $imp_current_faq_answer );
+						unset( $this->current_faq, $this->current_faq_answer );
 						return $return;
 					} else {
 						return $this->output_faq( $imp_faqs );
@@ -246,22 +252,22 @@ class CWS_I_Make_Plugins {
 				}
 				break;
 			case 'imp_faq_question' :
-				return $imp_current_faq;
+				return $this->current_faq;
 				break;
 			case 'imp_faq_answer' :
-				return $imp_current_faq_answer;
+				return $this->current_faq_answer;
 				break;
 			case 'imp_min_version' :
-				return $imp_readme->requires;
+				return $this->readme->requires;
 				break;
 			case 'imp_tested_version' :
-				return $imp_readme->tested;
+				return $this->readme->tested;
 				break;
 			case 'imp_slug' :
-				return $imp_readme->slug;
+				return $this->readme->slug;
 				break;
 			case 'imp_downloads' :
-				return $imp_readme->downloaded;
+				return $this->readme->downloaded;
 				break;
 		endswitch;
 	}
@@ -375,12 +381,12 @@ class CWS_I_Make_Plugins {
 	}
 
 	function plugin( $content ) {
-		global $post, $imp_readme;
+		global $post;
 		if ( get_post_meta( $post->ID, '_cws_imp_retired_plugin', true ) )
 			$content = __( '<p><strong>This plugin has been marked as retired. It is recommended that you no longer use it.</strong></p>', 'cws-imp' );
 		if ( $post->post_parent && $post->post_parent == get_option( 'cws_imp_container_id' ) ) {
-			$imp_readme = $this->get_plugin_readme( $post->ID );
-			if ( $imp_readme ) {
+			$this->readme = $this->get_plugin_readme( $post->ID );
+			if ( $this->readme ) {
 				$shortcodes = array( 'imp_name', 'imp_url', 'imp_zip_url', 'imp_full_desc', 'imp_if_installation', 'imp_installation', 'imp_if_changelog', 'imp_changelog', 'imp_if_faq', 'imp_faq', 'imp_version', 'imp_min_version', 'imp_tested_version', 'imp_slug', 'imp_downloads', 'imp_screenshots', 'imp_other_notes' );
 				$this->add_shortcodes( $shortcodes );
 				$content = '';

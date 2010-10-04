@@ -37,6 +37,7 @@ class CWS_I_Make_Plugins {
 	var $current_changelog_v;
 	var $current_changes;
 	var $current_change;
+	var $did_list = false;
 
 	function __construct() {
 		self::$instance =& $this;
@@ -62,6 +63,7 @@ class CWS_I_Make_Plugins {
 			}
 			update_option( 'cws_imp_current_version', self::$version );
 		}
+		add_shortcode( 'implist_template', array( $this, 'plugins_list' ) );
 	}
 
 	function admin_init() {
@@ -114,7 +116,7 @@ class CWS_I_Make_Plugins {
 	}
 
 	function get_plugin_description( $page_id ) {
-		$readme = get_plugin_readme( $page_id );
+		$readme = $this->get_plugin_readme( $page_id );
 		if ( $readme )
 			return $readme->short_description;
 		else
@@ -310,7 +312,7 @@ class CWS_I_Make_Plugins {
 		}
 	}
 
-	function plugins_list( $content ) {
+	function plugins_list( $content = '' ) {
 		global $post;
 		if ( ( isset( $this->prevent_recursion ) && $this->prevent_recursion ) || $post->ID != $this->get_list_page_id() ) {
 			return $content;
@@ -320,8 +322,8 @@ class CWS_I_Make_Plugins {
 			$this->add_shortcodes( $shortcodes );
 			$content = $this->plugin_list_html() . $content;
 			$this->remove_shortcodes( $shortcodes );
-
 			$this->prevent_recursion = false;
+			remove_filter( 'the_content', array( $this, 'plugins_list' ), 15 );
 			return $content;
 		}
 	}

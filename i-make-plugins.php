@@ -37,7 +37,7 @@ class CWS_I_Make_Plugins {
 		add_action( 'admin_init',  array( $this, 'admin_init'   )     );
 		add_action( 'admin_menu',  array( $this, 'admin_menu'   )     );
 		add_filter( 'the_content', array( $this, 'plugins_list' ), 15 );
-		add_filter( 'the_content', array( $this, 'imp_plugin'   ),  9 );
+		add_filter( 'the_content', array( $this, 'plugin'       ),  9 );
 		add_filter( 'init',        array( $this, 'init'         )     );
 	}
 
@@ -306,7 +306,7 @@ class CWS_I_Make_Plugins {
 
 	function plugins_list( $content ) {
 		global $post;
-		if ( ( isset( $this->prevent_recursion ) && $this->prevent_recursion ) || $post->ID != $this->get_plugin_list_page_id() ) {
+		if ( ( isset( $this->prevent_recursion ) && $this->prevent_recursion ) || $post->ID != $this->get_list_page_id() ) {
 			return $content;
 		} else {
 			$this->prevent_recursion = true;

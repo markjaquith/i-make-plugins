@@ -2,7 +2,7 @@
 /*
 Plugin Name: I Make Plugins
 Description: Shows off the WordPress plugins you've written
-Version: 1.2-beta
+Version: 1.2-beta-2
 Author: Mark Jaquith
 Plugin URI: http://txfx.net/wordpress-plugins/i-make-plugins/
 Author URI: http://coveredwebservices.com/
@@ -41,11 +41,13 @@ class CWS_I_Make_Plugins {
 
 	function __construct() {
 		self::$instance =& $this;
-		add_action( 'admin_init',  array( $this, 'admin_init'   )     );
-		add_action( 'admin_menu',  array( $this, 'admin_menu'   )     );
-		add_filter( 'the_content', array( $this, 'plugins_list' ), 15 );
-		add_filter( 'the_content', array( $this, 'plugin'       ),  9 );
-		add_filter( 'init',        array( $this, 'init'         )     );
+		add_action( 'admin_init',    array( $this, 'admin_init'    )        );
+		add_action( 'admin_menu',    array( $this, 'admin_menu'    )        );
+		add_filter( 'the_content',   array( $this, 'plugins_list'  ), 15    );
+		add_filter( 'the_content',   array( $this, 'plugin'        ),  9    );
+		add_filter( 'init',          array( $this, 'init'          )        );
+		add_action( 'do_meta_boxes', array( $this, 'do_meta_boxes' ), 20, 2 );
+		add_action( 'save_post',     array( $this, 'save_post'     )        );
 	}
 
 	function init() {
@@ -56,13 +58,13 @@ class CWS_I_Make_Plugins {
 
 		// Upgrade routines
 		$v = get_option( 'cws_imp_current_version' );
-		if ( version_compare( $v, self::$version, '<' ) ) {
+		if ( version_compare( $v, '1.1', '<' ) ) {
 			foreach ( array( 'list_template', 'template' ) as $t ) {
 				$t = 'cws_imp_plugin_' . $t;
 				update_option( $t, str_replace( 'imp_if', 'if_imp', get_option( $t ) ) );
 			}
-			update_option( 'cws_imp_current_version', self::$version );
 		}
+		update_option( 'cws_imp_current_version', self::$version );
 		add_shortcode( 'implist_template', array( $this, 'plugins_list' ) );
 	}
 
@@ -82,7 +84,7 @@ class CWS_I_Make_Plugins {
 
 	function about_templates() {
 		_e( '<p>The templating system is based on WordPress Shortcodes, which look like HTML tags but with square brackets.</p>
-		<p>Any of the shortcodes can be turned into a conditional wrapper by adding <code>if_</code> to the front of the tag. So to test <code>[implist_version]</code>, you could wrap some code in <code>[if_implist_version]</code> ... <code>[/if_implist_version]</code>.</p>
+		<p>Any of the shortcodes can be turned into a conditional wrapper by adding <code>if_</code> or <code>if_not_</code>to the front of the tag. So to test <code>[implist_version]</code>, you could wrap some code in <code>[if_implist_version]</code> ... <code>[/if_implist_version]</code>.</p>
 		<p>Some loop tags can be used in a self-closing form, in which case the plugin will generate the HTML for you. You only have to use the advanced loop format if you want to choose your own HTML for the loop.</p>', 'cws-imp' );
 	}
 
@@ -99,12 +101,36 @@ class CWS_I_Make_Plugins {
 
 	function field_template() {
 		_e( '<p>This controls what will be displayed on each plugin page. You can use the following tags:</p>
-		<p><code>[imp_name]</code> <code>[imp_url]</code> <code>[imp_zip_url]</code> <code>[imp_full_desc]</code> <code>[imp_version]</code> <code>[imp_changelog]</code> <code>[imp_faq]</code> <code>[imp_installation]</code> <code>[imp_min_version]</code> <code>[imp_tested_version]</code> <code>[imp_slug]</code> <code>[imp_downloads]</code></p>
+		<p><code>[imp_name]</code> <code>[imp_url]</code> <code>[imp_zip_url]</code> <code>[imp_full_desc]</code> <code>[imp_version]</code> <code>[imp_changelog]</code> <code>[imp_faq]</code> <code>[imp_installation]</code> <code>[imp_min_version]</code> <code>[imp_tested_version]</code> <code>[imp_slug]</code> <code>[imp_downloads]</code> <code>[imp_screenshots]</code> <code>[imp_other_notes]</code></p>
 		<p>An example advanced FAQ loop format is as follows:</p>
 		<p><code>[imp_faq]</code><br />&mdash;Q. <code>[imp_faq_question]</code><br />&mdash;A. <code>[imp_faq_answer]</code><br /><code>[/imp_faq]</code></p>
 		<p>An example advanced Changelog loop format is as follows:</p>
 		<p><code>[imp_changelog]</code><br />&mdash;<code>[imp_changelog_version]</code><br />&mdash;&mdash;<code>[imp_changelog_changes]</code><br />&mdash;&mdash;&mdash;<code>[imp_changelog_change]</code><br />&mdash;&mdash;<code>[/imp_changelog_changes]</code><br /><code>[/imp_changelog]</code></p>', 'cws-imp' ); ?>
 		<textarea rows="20" cols="50" class="large-text code" id="cws_imp_plugin_template" name="cws_imp_plugin_template"><?php form_option( 'cws_imp_plugin_template' ); ?></textarea><?php
+	}
+
+	function do_meta_boxes( $page, $context ) {
+		global $post;
+		if ( 'page' === $page && 'normal' === $context && $this->get_list_page_id() && $this->get_list_page_id() == $post->post_parent )
+			add_meta_box( 'cws-imp-slug', __( 'Plugin Slug', 'cws-imp' ), array( $this, 'meta_box' ), $page, $context, 'high' );
+	}
+
+	function meta_box() {
+		global $post;
+		echo '<p>' . __( 'Normally the plugin slug is determined by the slug of this page, but you can override it here. It should <em>exactly</em> match the slug used in the WordPress.org plugin repository.', 'cws-imp' ) . '</p>';
+?>
+	<p><label for="cws-imp-slug-field"><?php _e( 'Plugin slug:', 'cws-imp' ); ?></label> <input id="cws-imp-slug-field" name="cws_imp_slug" type="text" value="<?php echo esc_attr( get_post_meta( $post->ID, '_cws_imp_slug', true ) ); ?>" /><?php wp_nonce_field( 'cws_imp', '_cws_imp_nonce', false, true ); ?></p>
+<?php
+	}
+
+	function save_post( $id ) {
+		if ( wp_verify_nonce( $_REQUEST['_cws_imp_nonce'], 'cws_imp' ) ) {
+			if ( strlen( $_REQUEST['cws_imp_slug'] ) > 0 )
+				update_post_meta( $id, '_cws_imp_slug', stripslashes( $_REQUEST['cws_imp_slug'] ) );
+			else
+				delete_post_meta( $id, '_cws_imp_slug' );
+		}
+		return $id;
 	}
 
 	function get_list_page_id() {
@@ -125,7 +151,8 @@ class CWS_I_Make_Plugins {
 
 	function get_plugin_readme( $page_id ) {
 		$page = get_page( $page_id );
-		$slug = $page->post_name;
+		$postmeta_slug = get_post_meta( $page_id, '_cws_imp_slug', true );
+		$slug = ( $postmeta_slug ) ? $postmeta_slug : $page->post_name;
 
 		// First, try in-memory cache
 		if ( isset( $this->cache[$slug] ) )
@@ -281,6 +308,13 @@ class CWS_I_Make_Plugins {
 			return do_shortcode( $content );
 	}
 
+	function shortcode_negative_conditional( $atts, $content, $tag ) {
+		$test_tag = preg_replace( '#^if_not_#', '', $tag );
+		$test_output = $this->shortcode( NULL, NULL, $test_tag );
+		if ( empty( $test_output ) )
+			return do_shortcode( $content );
+	}
+
 	function shortcode_implist( $atts, $content = NULL ) {
 		global $post;
 		$plugins = $this->get_plugins();
@@ -299,8 +333,10 @@ class CWS_I_Make_Plugins {
 	function add_shortcodes( $array ) {
 		foreach ( (array) $array as $shortcode ) {
 			$conditional = 'if_' . $shortcode;
+			$negative_conditional = 'if_not_' . $shortcode;
 			add_shortcode( $shortcode, array( $this, 'shortcode' ) );
 			add_shortcode( $conditional, array( $this, 'shortcode_conditional' ) );
+			add_shortcode( $negative_conditional, array( $this, 'shortcode_negative_conditional' ) );
 		}
 	}
 
@@ -389,7 +425,7 @@ class CWS_I_Make_Plugins {
 		if ( $post->post_parent && $post->post_parent == get_option( 'cws_imp_container_id' ) ) {
 			$this->readme = $this->get_plugin_readme( $post->ID );
 			if ( $this->readme ) {
-				$shortcodes = array( 'imp_name', 'imp_url', 'imp_zip_url', 'imp_full_desc', 'imp_if_installation', 'imp_installation', 'imp_if_changelog', 'imp_changelog', 'imp_if_faq', 'imp_faq', 'imp_version', 'imp_min_version', 'imp_tested_version', 'imp_slug', 'imp_downloads', 'imp_screenshots', 'imp_other_notes' );
+				$shortcodes = array( 'imp_name', 'imp_url', 'imp_zip_url', 'imp_full_desc', 'imp_installation', 'imp_changelog', 'imp_faq', 'imp_version', 'imp_min_version', 'imp_tested_version', 'imp_slug', 'imp_downloads', 'imp_screenshots', 'imp_other_notes' );
 				$this->add_shortcodes( $shortcodes );
 				$content = '';
 				$content .= do_shortcode( get_option( 'cws_imp_plugin_template' ) );

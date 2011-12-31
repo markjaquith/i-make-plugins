@@ -2,7 +2,7 @@
 /*
 Plugin Name: I Make Plugins
 Description: Shows off the WordPress plugins you've written
-Version: 1.2-beta-2
+Version: 1.2-beta-3
 Author: Mark Jaquith
 Plugin URI: http://txfx.net/wordpress-plugins/i-make-plugins/
 Author URI: http://coveredwebservices.com/
@@ -124,7 +124,7 @@ class CWS_I_Make_Plugins {
 	}
 
 	function save_post( $id ) {
-		if ( wp_verify_nonce( $_REQUEST['_cws_imp_nonce'], 'cws_imp' ) ) {
+		if ( isset( $_REQUEST['_cws_imp_nonce'] ) && wp_verify_nonce( $_REQUEST['_cws_imp_nonce'], 'cws_imp' ) ) {
 			if ( strlen( $_REQUEST['cws_imp_slug'] ) > 0 )
 				update_post_meta( $id, '_cws_imp_slug', stripslashes( $_REQUEST['cws_imp_slug'] ) );
 			else

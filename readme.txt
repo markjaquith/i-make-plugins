@@ -1,10 +1,10 @@
-=== Plugin Name ===
+=== I Make Plugins ===
 Contributors: markjaquith
 Donate link: http://txfx.net/wordpress-plugins/donate/
 Tags: plugin, directory, list, plugin directory
 Requires at least: 2.8
-Tested up to: 2.9.1
-Stable tag: trunk
+Tested up to: 3.0.1
+Stable tag: 1.1
 
 For plugin authors. Showcase your plugins on your WordPress site. You only update your readme.txt files!
 
@@ -20,14 +20,25 @@ This plugin is for WordPress plugin __authors__, not __users__. It showcases you
 
 = Why isn't my plugin pulling information from the repository? =
 
-Its page "slug" much match the "slug" of the plugin in the repository. That is how the match is made.
+The default is that its page "slug" must match the "slug" of the plugin in the repository. But if you want the slug to be something else, you can edit the placeholder page for that plugin and enter in a custom plugin slug in the "Plugin slug" meta box.
 
 = I've updated my plugin's `readme.txt` file. Why aren't the changes showing? =
 
 Be patient. The API responses are cached for a little while.
 
+= How do I show something if a particular plugin field is *not* available? =
+
+Use: `[if_not_{shortcode}] ... [/if_not_{shortcode}]`
 
 == Changelog ==
+
+= 1.2 =
+* Reorganized plugin code
+* Fix unserialization bug (props: sivel)
+* Add `[implist_zip_url]`, `[imp_screenshots]`, and `[imp_other_notes]` (props: sivel)
+* Add `[implist_template]` for manual placement of the plugins list (can now wrap content around it)
+* Add `[if_not_{shortcode}]` tests for negation (props: sivel for the idea)
+* Requires PHP 5.2 (WordPress will too, soon, get upgrading!)
 
 = 1.1 =
 * Added `[implist_version]`, `[imp_min_version]`, `[imp_tested_version]`, `[imp_slug]`, `[imp_downloads]` shortcodes

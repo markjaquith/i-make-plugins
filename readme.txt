@@ -2,8 +2,8 @@
 Contributors: markjaquith
 Donate link: http://txfx.net/wordpress-plugins/donate/
 Tags: plugin, directory, list, plugin directory
-Requires at least: 2.8
-Tested up to: 3.0.1
+Requires at least: 3.3
+Tested up to: 3.4
 Stable tag: 1.1
 
 For plugin authors. Showcase your plugins on your WordPress site. You only update your readme.txt files!
@@ -38,7 +38,6 @@ Use: `[if_not_{shortcode}] ... [/if_not_{shortcode}]`
 * Add `[implist_zip_url]`, `[imp_screenshots]`, and `[imp_other_notes]` (props: sivel)
 * Add `[implist_template]` for manual placement of the plugins list (can now wrap content around it)
 * Add `[if_not_{shortcode}]` tests for negation (props: sivel for the idea)
-* Requires PHP 5.2 (WordPress will too, soon, get upgrading!)
 
 = 1.1 =
 * Added `[implist_version]`, `[imp_min_version]`, `[imp_tested_version]`, `[imp_slug]`, `[imp_downloads]` shortcodes

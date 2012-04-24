@@ -38,6 +38,7 @@ class CWS_I_Make_Plugins {
 	var $current_changes;
 	var $current_change;
 	var $did_list = false;
+	var $post_type = 'page';
 
 	function __construct() {
 		self::$instance = $this;
@@ -51,6 +52,7 @@ class CWS_I_Make_Plugins {
 	}
 
 	function init() {
+		$this->post_type = apply_filters( 'i-make-plugins__post_type', $this->post_type );
 		load_plugin_textdomain( 'cws-imp', '', plugin_basename( dirname( __FILE__ ) ) );
 		// Add our default options
 		add_option( 'cws_imp_plugin_list_template', "<ul id=\"cws-imp-plugin-list\">\n\n[implist]\n<li class=\"cws-imp-plugin\"><a class=\"cws-imp-plugin-title\" href=\"[implist_url]\">[implist_name]</a>\n<p class=\"cws-imp-plugin-description\">[implist_desc]</p>\n</li>\n[/implist]\n\n</ul>" );
@@ -111,7 +113,7 @@ class CWS_I_Make_Plugins {
 
 	function do_meta_boxes( $page, $context ) {
 		global $post;
-		if ( 'page' === $page && 'normal' === $context && $this->get_list_page_id() && $this->get_list_page_id() == $post->post_parent )
+		if ( $this->post_type === $page && 'normal' === $context && $this->is_plugin( $post ) )
 			add_meta_box( 'cws-imp-slug', __( 'Plugin Slug', 'cws-imp' ), array( $this, 'meta_box' ), $page, $context, 'high' );
 	}
 
@@ -138,7 +140,8 @@ class CWS_I_Make_Plugins {
 	}
 
 	function get_plugins() {
-		return new WP_Query( array( 'post_type' => 'page', 'post_parent' => $this->get_list_page_id(), 'showposts' => -1, 'orderby' => 'title', 'order' => 'ASC' ) );
+		$options = apply_filters( 'i-make-plugins__get_plugins', array( 'post_type' => $this->post_type, 'post_parent' => $this->get_list_page_id(), 'showposts' => -1, 'orderby' => 'title', 'order' => 'ASC' ) );
+		return new WP_Query( $options );
 	}
 
 	function get_plugin_description( $page_id ) {
@@ -418,11 +421,16 @@ class CWS_I_Make_Plugins {
 		return $return;
 	}
 
+	function is_plugin( $post ) {
+		$post = get_post( $post );
+		return apply_filters( 'i-make-plugins__is_plugin', $post && isset( $post->post_parent ) && $post->post_parent && $post->post_parent == get_option( 'cws_imp_container_id' ), $post->ID );
+	}
+
 	function plugin( $content ) {
 		global $post;
 		if ( get_post_meta( $post->ID, '_cws_imp_retired_plugin', true ) )
 			$content = __( '<p><strong>This plugin has been marked as retired. It is recommended that you no longer use it.</strong></p>', 'cws-imp' );
-		if ( $post->post_parent && $post->post_parent == get_option( 'cws_imp_container_id' ) ) {
+		if ( $this->is_plugin( $post ) ) {
 			$this->readme = $this->get_plugin_readme( $post->ID );
 			if ( $this->readme ) {
 				$shortcodes = array( 'imp_name', 'imp_url', 'imp_zip_url', 'imp_full_desc', 'imp_installation', 'imp_changelog', 'imp_faq', 'imp_version', 'imp_min_version', 'imp_tested_version', 'imp_slug', 'imp_downloads', 'imp_screenshots', 'imp_other_notes' );

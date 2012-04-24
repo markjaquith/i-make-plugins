@@ -98,12 +98,12 @@ class CWS_I_Make_Plugins {
 		_e( '<p>This controls what will be displayed on the container page. You can use the following tags to loop through the plugins:</p>
 		<p><code>[implist]</code>&mdash;<code>[/implist]</code></p>
 		<p>Within that loop, you can use the following tags:</p>
-		<p><code>[implist_name]</code> <code>[implist_url]</code> <code>[implist_version]</code> <code>[implist_desc]</code> <code>[implist_zip_url]</code></p>', 'cws-imp' ); ?><textarea rows="20" cols="50" class="large-text code" id="cws_imp_plugin_list_template" name="cws_imp_plugin_list_template"><?php form_option( 'cws_imp_plugin_list_template' ); ?></textarea></fieldset><?php
+		<p><code>[implist_name]</code> <code>[implist_url]</code> <code>[implist_version]</code> <code>[implist_desc]</code> <code>[implist_zip_url]</code> <code>[implist_banner-772x250]</code></p>', 'cws-imp' ); ?><textarea rows="20" cols="50" class="large-text code" id="cws_imp_plugin_list_template" name="cws_imp_plugin_list_template"><?php form_option( 'cws_imp_plugin_list_template' ); ?></textarea></fieldset><?php
 	}
 
 	function field_template() {
 		_e( '<p>This controls what will be displayed on each plugin page. You can use the following tags:</p>
-		<p><code>[imp_name]</code> <code>[imp_url]</code> <code>[imp_zip_url]</code> <code>[imp_full_desc]</code> <code>[imp_version]</code> <code>[imp_changelog]</code> <code>[imp_faq]</code> <code>[imp_installation]</code> <code>[imp_min_version]</code> <code>[imp_tested_version]</code> <code>[imp_slug]</code> <code>[imp_downloads]</code> <code>[imp_screenshots]</code> <code>[imp_other_notes]</code></p>
+		<p><code>[imp_name]</code> <code>[imp_url]</code> <code>[imp_zip_url]</code> <code>[imp_full_desc]</code> <code>[imp_version]</code> <code>[imp_banner-772x250]</code> <code>[imp_changelog]</code> <code>[imp_faq]</code> <code>[imp_installation]</code> <code>[imp_min_version]</code> <code>[imp_tested_version]</code> <code>[imp_slug]</code> <code>[imp_downloads]</code> <code>[imp_screenshots]</code> <code>[imp_other_notes]</code></p>
 		<p>An example advanced FAQ loop format is as follows:</p>
 		<p><code>[imp_faq]</code><br />&mdash;Q. <code>[imp_faq_question]</code><br />&mdash;A. <code>[imp_faq_answer]</code><br /><code>[/imp_faq]</code></p>
 		<p>An example advanced Changelog loop format is as follows:</p>
@@ -152,10 +152,15 @@ class CWS_I_Make_Plugins {
 			return ' '; // Why a space? Must investigate further
 	}
 
+	function get_plugin_slug( $post ) {
+		$post = get_post( $post );
+		$postmeta_slug = get_post_meta( $post->ID, '_cws_imp_slug', true );
+		$slug = ( $postmeta_slug ) ? $postmeta_slug : $post->post_name;
+		return $slug;
+	}
+
 	function get_plugin_readme( $page_id ) {
-		$page = get_page( $page_id );
-		$postmeta_slug = get_post_meta( $page_id, '_cws_imp_slug', true );
-		$slug = ( $postmeta_slug ) ? $postmeta_slug : $page->post_name;
+		$slug = $this->get_plugin_slug( $page_id );
 
 		// First, try in-memory cache
 		if ( isset( $this->cache[$slug] ) )
@@ -174,7 +179,9 @@ class CWS_I_Make_Plugins {
 		$readme = plugins_api( 'plugin_information', array('slug' => $slug, 'fields' => array( 'short_description' => true ) ) );
 		if ( is_wp_error( $readme ) )
 			return false;
+		$readme->banners = array( '772x250' => $this->get_banner_url( $page_id, '772x250' ) );
 		$this->cache[$slug] = $readme;
+		
 		update_post_meta( $page_id, '_cws_imp_readme', serialize( $readme ) );
 		update_post_meta( $page_id, '_cws_imp_readme_timestamp', time() );
 		return $readme;
@@ -182,9 +189,22 @@ class CWS_I_Make_Plugins {
 
 	function get_readme_url( $slug, $tag ) {
 		if ( 'trunk' == $tag )
-			return 'http://svn.wp-plugins.org/' . $slug . '/trunk/readme.txt';
+			return 'http://plugins.svn.wordpress.org/' . $slug . '/trunk/readme.txt';
 		else
-			return 'http://svn.wp-plugins.org/' . $slug . '/tags/' . $tag . '/readme.txt';
+			return 'http://plugins.svn.wordpress.org/' . $slug . '/tags/' . $tag . '/readme.txt';
+	}
+
+	function get_banner_url( $post, $dimension_string = '772x250' ) {
+		$slug = $this->get_plugin_slug( $post );
+		if ( !$slug )
+			return false;
+		foreach ( array( 'png', 'jpg' ) as $extension ) {
+			$url = "http://plugins.svn.wordpress.org/{$slug}/assets/banner-{$dimension_string}.{$extension}";
+			$result = wp_remote_head( $url );
+			if ( 200 == $result['response']['code'] )
+				return $url;
+		}
+		return false;
 	}
 
 	function plugin_list_html() {
@@ -301,6 +321,10 @@ class CWS_I_Make_Plugins {
 			case 'imp_downloads' :
 				return $this->readme->downloaded;
 				break;
+			case 'imp_banner-772x250' :
+			case 'implist_banner-772x250' :
+				return $this->readme->banners['772x250'];
+				break;
 		endswitch;
 	}
 
@@ -357,7 +381,7 @@ class CWS_I_Make_Plugins {
 			return $content;
 		} else {
 			$this->prevent_recursion = true;
-			$shortcodes = array( 'implist', 'implist_name', 'implist_url', 'implist_version', 'implist_desc', 'implist_zip_url' );
+			$shortcodes = array( 'implist', 'implist_name', 'implist_url', 'implist_version', 'implist_desc', 'implist_zip_url', 'implist_banner-772x250' );
 			$this->add_shortcodes( $shortcodes );
 			$content = $this->plugin_list_html() . $content;
 			$this->remove_shortcodes( $shortcodes );
@@ -433,7 +457,7 @@ class CWS_I_Make_Plugins {
 		if ( $this->is_plugin( $post ) ) {
 			$this->readme = $this->get_plugin_readme( $post->ID );
 			if ( $this->readme ) {
-				$shortcodes = array( 'imp_name', 'imp_url', 'imp_zip_url', 'imp_full_desc', 'imp_installation', 'imp_changelog', 'imp_faq', 'imp_version', 'imp_min_version', 'imp_tested_version', 'imp_slug', 'imp_downloads', 'imp_screenshots', 'imp_other_notes' );
+				$shortcodes = array( 'imp_name', 'imp_url', 'imp_zip_url', 'imp_full_desc', 'imp_installation', 'imp_changelog', 'imp_faq', 'imp_version', 'imp_min_version', 'imp_tested_version', 'imp_slug', 'imp_downloads', 'imp_screenshots', 'imp_other_notes', 'imp_banner-772x250' );
 				$this->add_shortcodes( $shortcodes );
 				$content = '';
 				$content .= do_shortcode( get_option( 'cws_imp_plugin_template' ) );

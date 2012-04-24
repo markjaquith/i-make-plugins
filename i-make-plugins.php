@@ -40,7 +40,7 @@ class CWS_I_Make_Plugins {
 	var $did_list = false;
 
 	function __construct() {
-		self::$instance =& $this;
+		self::$instance = $this;
 		add_action( 'admin_init',    array( $this, 'admin_init'    )        );
 		add_action( 'admin_menu',    array( $this, 'admin_menu'    )        );
 		add_filter( 'the_content',   array( $this, 'plugins_list'  ), 15    );
@@ -70,7 +70,7 @@ class CWS_I_Make_Plugins {
 
 	function admin_init() {
 		// Container Page Section
-		add_settings_section( 'cws-imp-settings-container-page', __( 'Container page', 'cws-imp' ), NULL, 'cws-imp-settings' );
+		add_settings_section( 'cws-imp-settings-container-page', __( 'Container page', 'cws-imp' ), '__return_false', 'cws-imp-settings' );
 		register_setting( 'cws-imp-settings', 'cws_imp_container_id' );
 		add_settings_field( 'cws-imp-container-id', __( 'Plugin container page', 'cws-imp' ), array( $this, 'field_container_page' ), 'cws-imp-settings', 'cws-imp-settings-container-page' );
 

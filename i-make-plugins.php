@@ -2,15 +2,15 @@
 /*
 Plugin Name: I Make Plugins
 Description: Shows off the WordPress plugins you've written
-Version: 1.2-beta-3
+Version: 1.2-beta-4
 Author: Mark Jaquith
 Plugin URI: http://txfx.net/wordpress-plugins/i-make-plugins/
 Author URI: http://coveredwebservices.com/
-License: GPLv2
+License: GPL
 */
 
 /*
-    Copyright 2010 Mark Jaquith (email: mark.gpl@txfx.net)
+    Copyright 2010-2012 Mark Jaquith (email: mark.gpl@txfx.net)
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by

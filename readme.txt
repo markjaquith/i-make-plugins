@@ -40,6 +40,7 @@ Use: `[if_not_{shortcode}] ... [/if_not_{shortcode}]`
 * Add `[if_not_{shortcode}]` tests for negation (props: sivel for the idea)
 * Add hooks, so people who store plugins in a CPT don't have to modify the plugin
 * Add `[implist_banner-772x250]` and `[imp_banner-772x250]` for banner URL output.
+* Update plugin info in the background, with wp-cron
 
 = 1.1 =
 * Added `[implist_version]`, `[imp_min_version]`, `[imp_tested_version]`, `[imp_slug]`, `[imp_downloads]` shortcodes

@@ -29,7 +29,8 @@ License: GPL
 
 class CWS_I_Make_Plugins {
 	static $instance;
-	static $version = '1.2';
+	const VERSION = '1.2';
+	const CRON_HOOK = 'cws_imp_update_plugins';
 	var $prevent_recursion = false;
 	var $readme;
 	var $current_faq;
@@ -42,13 +43,14 @@ class CWS_I_Make_Plugins {
 
 	function __construct() {
 		self::$instance = $this;
-		add_action( 'admin_init',    array( $this, 'admin_init'    )        );
-		add_action( 'admin_menu',    array( $this, 'admin_menu'    )        );
-		add_filter( 'the_content',   array( $this, 'plugins_list'  ), 15    );
-		add_filter( 'the_content',   array( $this, 'plugin'        ),  9    );
-		add_filter( 'init',          array( $this, 'init'          )        );
-		add_action( 'do_meta_boxes', array( $this, 'do_meta_boxes' ), 20, 2 );
-		add_action( 'save_post',     array( $this, 'save_post'     )        );
+		add_action( 'admin_init',    array( $this, 'admin_init'     )        );
+		add_action( 'admin_menu',    array( $this, 'admin_menu'     )        );
+		add_filter( 'the_content',   array( $this, 'plugins_list'   ), 15    );
+		add_filter( 'the_content',   array( $this, 'plugin'         ),  9    );
+		add_filter( 'init',          array( $this, 'init'           )        );
+		add_action( 'do_meta_boxes', array( $this, 'do_meta_boxes'  ), 20, 2 );
+		add_action( 'save_post',     array( $this, 'save_post'      )        );
+		add_action( self::CRON_HOOK, array( $this, 'update_plugins' )       );
 	}
 
 	function init() {
@@ -59,15 +61,18 @@ class CWS_I_Make_Plugins {
 		add_option( 'cws_imp_plugin_template', "[imp_full_desc]\n\n<h3>Download</h3>\nLatest version: <a href=\"[imp_zip_url]\">Download <b>[imp_name]</b> v[imp_version]</a> [zip]\n\n[if_imp_installation]\n<h3>Installation</h3>\n[imp_installation]\n[/if_imp_installation]\n\n[if_imp_faq]\n<h3>FAQ</h3>\n[imp_faq]\n[/if_imp_faq]\n\n[if_imp_changelog]\n<h3>Changelog</h3>\n[imp_changelog]\n[/if_imp_changelog]" );
 
 		// Upgrade routines
-		$v = get_option( 'cws_imp_current_version' );
-		if ( version_compare( $v, '1.1', '<' ) ) {
+		if ( version_compare( get_option( 'cws_imp_current_version' ), '1.1', '<' ) ) {
 			foreach ( array( 'list_template', 'template' ) as $t ) {
 				$t = 'cws_imp_plugin_' . $t;
 				update_option( $t, str_replace( 'imp_if', 'if_imp', get_option( $t ) ) );
 			}
 		}
-		update_option( 'cws_imp_current_version', self::$version );
+		update_option( 'cws_imp_current_version', self::VERSION );
 		add_shortcode( 'implist_template', array( $this, 'plugins_list' ) );
+
+		// Cron jobs
+		if ( !wp_next_scheduled( self::CRON_HOOK ) )
+			wp_schedule_event( current_time( 'timestamp' ), 'hourly', self::CRON_HOOK );
 	}
 
 	function admin_init() {
@@ -159,19 +164,23 @@ class CWS_I_Make_Plugins {
 		return $slug;
 	}
 
-	function get_plugin_readme( $page_id ) {
+	function get_plugin_readme( $page_id, $force_update = false ) {
 		$slug = $this->get_plugin_slug( $page_id );
 
-		// First, try in-memory cache
-		if ( isset( $this->cache[$slug] ) )
-			return $this->cache[$slug];
+		if ( !$force_update ) {
+			// First, try in-memory cache
+			if ( isset( $this->cache[$slug] ) )
+				return $this->cache[$slug];
 
-		// Next, try postmeta cache
-		$ts = get_post_meta( $page_id, '_cws_imp_readme_timestamp', true );
-		$rm = get_post_meta( $page_id, '_cws_imp_readme', true );
-		if ( $rm && $ts && $ts > time() - 3600 ) { // fresh
-			$this->cache[$slug] = maybe_unserialize( $rm );
-			return $this->cache[$slug];
+			// Next, try postmeta cache
+			$ts = get_post_meta( $page_id, '_cws_imp_readme_timestamp', true );
+			$rm = get_post_meta( $page_id, '_cws_imp_readme', true );
+			// We force a dynamic update after two hours
+			// Note that we have a cron job that ideally does this once an hour
+			if ( $rm && $ts && $ts > time() - 7200 ) { // fresh
+				$this->cache[$slug] = maybe_unserialize( $rm );
+				return $this->cache[$slug];
+			}
 		}
 
 		// Fetch via API
@@ -185,6 +194,15 @@ class CWS_I_Make_Plugins {
 		update_post_meta( $page_id, '_cws_imp_readme', serialize( $readme ) );
 		update_post_meta( $page_id, '_cws_imp_readme_timestamp', time() );
 		return $readme;
+	}
+
+	function update_plugins() {
+		$plugins = $this->get_plugins();
+		if( $plugins->have_posts() ) {
+			foreach ( $plugins->posts as $p ) {
+				$this->get_plugin_readme( $p->ID, true );
+			}
+		}
 	}
 
 	function get_readme_url( $slug, $tag ) {

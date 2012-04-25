@@ -24,11 +24,16 @@ The default is that its page "slug" must match the "slug" of the plugin in the r
 
 = I've updated my plugin's `readme.txt` file. Why aren't the changes showing? =
 
-Be patient. The API responses are cached for a little while.
+Be patient. The API responses are updated once an hour.
 
 = How do I show something if a particular plugin field is *not* available? =
 
 Use: `[if_not_{shortcode}] ... [/if_not_{shortcode}]`
+
+== Upgrade Notice ==
+
+= 1.2 =
+Big release! Background plugin updating. Shortcodes for plugin banner, negative logic, screenshots, zip URL, other notes. Can wrap content around the plugin list. Hooks for advanced users. Bug fixes.
 
 == Changelog ==
 

@@ -362,9 +362,9 @@ class CWS_I_Make_Plugins {
 		while ( $plugins->have_posts() ) : $plugins->the_post();
 			if ( get_post_meta( $post->ID, '_cws_imp_retired_plugin', true ) )
 				continue; // TO-DO: UI for this
-			$post->post_excerpt = trim( $this->get_plugin_description( $post->ID ) );
-			if ( empty( $post->post_excerpt ) )
-				$post->post_excerpt = __( 'No description', 'cws-imp' );
+			$desc = trim( $this->get_plugin_description( $post->ID ) );
+			if ( !empty( $desc ) )
+				$post->post_excerpt = $desc;
 			$return .= do_shortcode( $content );
 		endwhile;
 		return $return;

@@ -50,7 +50,7 @@ class CWS_I_Make_Plugins {
 		add_filter( 'init',          array( $this, 'init'           )        );
 		add_action( 'do_meta_boxes', array( $this, 'do_meta_boxes'  ), 20, 2 );
 		add_action( 'save_post',     array( $this, 'save_post'      )        );
-		add_action( self::CRON_HOOK, array( $this, 'update_plugins' )       );
+		add_action( self::CRON_HOOK, array( $this, 'update_plugins' )        );
 	}
 
 	function init() {
@@ -190,7 +190,7 @@ class CWS_I_Make_Plugins {
 			return false;
 		$readme->banners = array( '772x250' => $this->get_banner_url( $page_id, '772x250' ) );
 		$this->cache[$slug] = $readme;
-		
+
 		update_post_meta( $page_id, '_cws_imp_readme', serialize( $readme ) );
 		update_post_meta( $page_id, '_cws_imp_readme_timestamp', time() );
 		return $readme;

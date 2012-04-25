@@ -247,7 +247,7 @@ class CWS_I_Make_Plugins {
 				break;
 			case 'imp_version' :
 			case 'implist_version' :
-				return $this->readme->version;
+				return isset( $this->readme->version ) ? $this->readme->version : '';
 				break;
 			case 'imp_url' :
 			case 'implist_url' :
@@ -258,24 +258,19 @@ class CWS_I_Make_Plugins {
 				break;
 			case 'implist_zip_url' :
 			case 'imp_zip_url' :
-				if ( isset( $this->readme->download_link ) )
-					return $this->readme->download_link;
+				return isset( $this->readme->download_link ) ? $this->readme->download_link : '';
 				break;
 			case 'imp_full_desc' :
-				if ( isset( $this->readme->sections['description'] ) )
-					return $this->readme->sections['description'];
+				return isset( $this->readme->sections['description'] ) ? $this->readme->sections['description'] : '';
 				break;
 			case 'imp_installation' :
-				if ( isset( $this->readme->sections['installation'] ) )
-					return $this->readme->sections['installation'];
+				return isset( $this->readme->sections['installation'] ) ? $this->readme->sections['installation'] : '';
 				break;
 			case 'imp_screenshots' :
-				if ( isset( $this->readme->sections['screenshots'] ) )
-					return $this->readme->sections['screenshots'];
+				return isset( $this->readme->sections['screenshots'] ) ? $this->readme->sections['screenshots'] : '';
 				break;
 			case 'imp_other_notes' :
-				if ( isset ( $this->readme->sections['other_notes'] ) )
-					return $this->readme->sections['other_notes'];
+				return isset( $this->readme->sections['other_notes'] ) ? $this->readme->sections['other_notes'] : '';
 				break;
 			case 'imp_changelog' :
 				if ( isset( $this->readme->sections['changelog'] ) ) {
@@ -328,20 +323,20 @@ class CWS_I_Make_Plugins {
 				return $this->current_faq_answer;
 				break;
 			case 'imp_min_version' :
-				return $this->readme->requires;
+				return isset( $this->readme->requires ) ? $this->readme->requires : '';
 				break;
 			case 'imp_tested_version' :
-				return $this->readme->tested;
+				return isset( $this->readme->tested ) ? $this->readme->tested : '';
 				break;
 			case 'imp_slug' :
-				return $this->readme->slug;
+				return isset( $this->readme->slug ) ? $this->readme->slug : '';
 				break;
 			case 'imp_downloads' :
-				return $this->readme->downloaded;
+				return isset( $this->readme->downloaded ) ? $this->readme->downloaded : '';
 				break;
 			case 'imp_banner-772x250' :
 			case 'implist_banner-772x250' :
-				return $this->readme->banners['772x250'];
+				return isset( $this->readme->banners['772x250'] ) ? $this->readme->banners['772x250'] : '';
 				break;
 		endswitch;
 	}

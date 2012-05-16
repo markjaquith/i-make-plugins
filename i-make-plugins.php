@@ -151,7 +151,7 @@ class CWS_I_Make_Plugins {
 
 	function get_plugin_description( $page_id ) {
 		$readme = $this->get_plugin_readme( $page_id );
-		if ( $readme )
+		if ( isset( $readme->short_description ) && !empty( $readme->short_description ) )
 			return $readme->short_description;
 		else
 			return ' '; // Why a space? Must investigate further

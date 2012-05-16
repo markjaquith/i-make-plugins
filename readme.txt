@@ -37,6 +37,10 @@ Big release! Background plugin updating. Shortcodes for plugin banner, negative 
 
 == Changelog ==
 
+= 1.2.1 =
+* Fix a bunch of PHP Notices
+* Blank out the description for non-repo pages, instead of showing "No description" text.
+
 = 1.2 =
 * Reorganized plugin code
 * Fix unserialization bug (props: sivel)

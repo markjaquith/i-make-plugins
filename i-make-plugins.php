@@ -219,7 +219,7 @@ class CWS_I_Make_Plugins {
 		foreach ( array( 'png', 'jpg' ) as $extension ) {
 			$url = "http://plugins.svn.wordpress.org/{$slug}/assets/banner-{$dimension_string}.{$extension}";
 			$result = wp_remote_head( $url );
-			if ( 200 == $result['response']['code'] )
+			if ( !is_wp_error( $result ) && 200 == $result['response']['code'] )
 				return $url;
 		}
 		return false;

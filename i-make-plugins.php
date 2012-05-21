@@ -29,7 +29,7 @@ License: GPL
 
 class CWS_I_Make_Plugins {
 	static $instance;
-	const VERSION = '1.2';
+	const VERSION = '1.2.1';
 	const CRON_HOOK = 'cws_imp_update_plugins';
 	var $prevent_recursion = false;
 	var $readme;
@@ -66,6 +66,10 @@ class CWS_I_Make_Plugins {
 				$t = 'cws_imp_plugin_' . $t;
 				update_option( $t, str_replace( 'imp_if', 'if_imp', get_option( $t ) ) );
 			}
+		}
+		if ( version_compare( get_option( 'cws_imp_current_version' ), '1.2.1', '<' ) ) {
+			// We killed double serialization in this release, so we have to refresh the post_meta cache
+			$this->update_plugins();
 		}
 		update_option( 'cws_imp_current_version', self::VERSION );
 		add_shortcode( 'implist_template', array( $this, 'plugins_list' ) );
@@ -178,7 +182,7 @@ class CWS_I_Make_Plugins {
 			// We force a dynamic update after two hours
 			// Note that we have a cron job that ideally does this once an hour
 			if ( $rm && $ts && $ts > time() - 7200 ) { // fresh
-				$this->cache[$slug] = maybe_unserialize( $rm );
+				$this->cache[$slug] = $rm;
 				return $this->cache[$slug];
 			}
 		}
@@ -191,7 +195,7 @@ class CWS_I_Make_Plugins {
 		$readme->banners = array( '772x250' => $this->get_banner_url( $page_id, '772x250' ) );
 		$this->cache[$slug] = $readme;
 
-		update_post_meta( $page_id, '_cws_imp_readme', serialize( $readme ) );
+		update_post_meta( $page_id, '_cws_imp_readme', $readme );
 		update_post_meta( $page_id, '_cws_imp_readme_timestamp', time() );
 		return $readme;
 	}

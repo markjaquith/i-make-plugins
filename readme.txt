@@ -32,6 +32,9 @@ Use: `[if_not_{shortcode}] ... [/if_not_{shortcode}]`
 
 == Upgrade Notice ==
 
+= 1.2.1 =
+Blanks out the description for non-repo plugin pages. Fixes serialization issues that some plugins were experiencing.
+
 = 1.2 =
 Big release! Background plugin updating. Shortcodes for plugin banner, negative logic, screenshots, zip URL, other notes. Can wrap content around the plugin list. Hooks for advanced users. Bug fixes.
 

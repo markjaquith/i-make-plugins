@@ -2,7 +2,7 @@
 /*
 Plugin Name: I Make Plugins
 Description: Shows off the WordPress plugins you've written
-Version: 1.2.1
+Version: 1.2.2-beta
 Author: Mark Jaquith
 Plugin URI: http://txfx.net/wordpress-plugins/i-make-plugins/
 Author URI: http://coveredwebservices.com/
@@ -29,7 +29,7 @@ License: GPL
 
 class CWS_I_Make_Plugins {
 	static $instance;
-	const VERSION = '1.2.1';
+	const VERSION = '1.2.2';
 	const CRON_HOOK = 'cws_imp_update_plugins';
 	var $prevent_recursion = false;
 	var $readme;
@@ -403,7 +403,6 @@ class CWS_I_Make_Plugins {
 			$content = $this->plugin_list_html() . $content;
 			$this->remove_shortcodes( $shortcodes );
 			$this->prevent_recursion = false;
-			remove_filter( 'the_content', array( $this, 'plugins_list' ), 15 );
 			return $content;
 		}
 	}

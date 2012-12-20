@@ -4,7 +4,7 @@ Donate link: http://txfx.net/wordpress-plugins/donate/
 Tags: plugin, directory, list, plugin directory  
 Requires at least: 3.3  
 Tested up to: 3.4  
-Stable tag: 1.2.1  
+Stable tag: 1.2.2  
 
 For plugin authors. Showcase your plugins on your WordPress site. You only update your readme.txt files!
 

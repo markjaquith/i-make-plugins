@@ -229,10 +229,10 @@ class CWS_I_Make_Plugins {
 		return false;
 	}
 
-	function plugin_list_html($content = '') {
+	function plugin_list_html( $content = '' ) {
 		global $post;
 		$temp_post = $post; // Backup
-        $template = get_option( 'cws_imp_plugin_list_template' );
+		$template = get_option( 'cws_imp_plugin_list_template' );
 		$return = do_shortcode( $template . $content );
 		$post = $temp_post; // Restore
 		return $return;
@@ -401,7 +401,7 @@ class CWS_I_Make_Plugins {
 			$this->prevent_recursion = true;
 			$shortcodes = array( 'implist', 'implist_name', 'implist_url', 'implist_version', 'implist_desc', 'implist_zip_url', 'implist_banner-772x250' );
 			$this->add_shortcodes( $shortcodes );
-			$content = $this->plugin_list_html($content);
+			$content = $this->plugin_list_html( $content );
 			$this->remove_shortcodes( $shortcodes );
 			$this->prevent_recursion = false;
 			return $content;
@@ -476,7 +476,7 @@ class CWS_I_Make_Plugins {
 			if ( $this->readme ) {
 				$shortcodes = array( 'imp_name', 'imp_url', 'imp_zip_url', 'imp_full_desc', 'imp_installation', 'imp_changelog', 'imp_faq', 'imp_version', 'imp_min_version', 'imp_tested_version', 'imp_slug', 'imp_downloads', 'imp_screenshots', 'imp_other_notes', 'imp_banner-772x250' );
 				$this->add_shortcodes( $shortcodes );
-                $template = get_option( 'cws_imp_plugin_template' );
+				$template = get_option( 'cws_imp_plugin_template' );
 				$content = do_shortcode( $template . $content );
 				$this->remove_shortcodes( $shortcodes );
 			}

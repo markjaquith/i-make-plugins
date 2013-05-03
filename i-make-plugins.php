@@ -346,7 +346,16 @@ class CWS_I_Make_Plugins {
 				return isset( $this->readme->slug ) ? $this->readme->slug : '';
 				break;
 			case 'imp_downloads' :
-				return isset( $this->readme->downloaded ) ? $this->readme->downloaded : '';
+                $downloads_attr = shortcode_atts( array( 'format' => true), $atts );
+				if ( isset( $this->readme->downloaded ) ) {
+					if ( $downloads_attr['format'] == true ) {
+						return number_format( $this->readme->downloaded );
+					} else {
+						return $this->readme->downloaded;
+					}
+				} else {
+					return '';
+				}
 				break;
 			case 'imp_banner-772x250' :
 			case 'implist_banner-772x250' :

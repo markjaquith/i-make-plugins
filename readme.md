@@ -1,4 +1,7 @@
 # I Make Plugins #
+
+[![Build Status](https://travis-ci.org/markjaquith/i-make-plugins.png?branch=master)](https://travis-ci.org/markjaquith/i-make-plugins)  
+
 Contributors: markjaquith, sivel  
 Donate link: http://txfx.net/wordpress-plugins/donate/  
 Tags: plugin, directory, list, plugin directory  

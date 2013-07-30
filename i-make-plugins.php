@@ -475,8 +475,11 @@ class CWS_I_Make_Plugins {
 			if ( $this->readme ) {
 				$shortcodes = array( 'imp_name', 'imp_url', 'imp_zip_url', 'imp_full_desc', 'imp_installation', 'imp_changelog', 'imp_faq', 'imp_version', 'imp_min_version', 'imp_tested_version', 'imp_slug', 'imp_downloads', 'imp_screenshots', 'imp_other_notes', 'imp_banner-772x250' );
 				$this->add_shortcodes( $shortcodes );
-				$content = '';
+				$this->add_shortcodes( $shortcodes );
+				$old_content = $content;
+				$content='';
 				$content .= do_shortcode( get_option( 'cws_imp_plugin_template' ) );
+				$content .= $old_content;
 				$this->remove_shortcodes( $shortcodes );
 			}
 			$content = apply_filters( 'cws_imp_plugin_body', $content );

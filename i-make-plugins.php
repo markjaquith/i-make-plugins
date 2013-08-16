@@ -107,7 +107,7 @@ class CWS_I_Make_Plugins {
 		_e( '<p>This controls what will be displayed on the container page. You can use the following tags to loop through the plugins:</p>
 		<p><code>[implist]</code>&mdash;<code>[/implist]</code></p>
 		<p>Within that loop, you can use the following tags:</p>
-		<p><code>[implist_name]</code> <code>[implist_url]</code> <code>[implist_version]</code> <code>[implist_desc]</code> <code>[implist_zip_url]</code> <code>[implist_banner-772x250]</code></p>', 'cws-imp' ); ?><textarea rows="20" cols="50" class="large-text code" id="cws_imp_plugin_list_template" name="cws_imp_plugin_list_template"><?php form_option( 'cws_imp_plugin_list_template' ); ?></textarea></fieldset><?php
+		<p><code>[implist_name]</code> <code>[implist_url]</code> <code>[implist_version]</code> <code>[implist_desc]</code> <code>[implist_zip_url]</code> <code>[implist_banner-772x250]</code> <code>[implist_downloads]</code></p>', 'cws-imp' ); ?><textarea rows="20" cols="50" class="large-text code" id="cws_imp_plugin_list_template" name="cws_imp_plugin_list_template"><?php form_option( 'cws_imp_plugin_list_template' ); ?></textarea></fieldset><?php
 	}
 
 	function field_template() {
@@ -336,6 +336,7 @@ class CWS_I_Make_Plugins {
 				return isset( $this->readme->slug ) ? $this->readme->slug : '';
 				break;
 			case 'imp_downloads' :
+			case 'implist_downloads' :
 				return isset( $this->readme->downloaded ) ? $this->readme->downloaded : '';
 				break;
 			case 'imp_banner-772x250' :
@@ -398,7 +399,7 @@ class CWS_I_Make_Plugins {
 			return $content;
 		} else {
 			$this->prevent_recursion = true;
-			$shortcodes = array( 'implist', 'implist_name', 'implist_url', 'implist_version', 'implist_desc', 'implist_zip_url', 'implist_banner-772x250' );
+			$shortcodes = array( 'implist', 'implist_name', 'implist_url', 'implist_version', 'implist_desc', 'implist_downloads', 'implist_zip_url', 'implist_banner-772x250' );
 			$this->add_shortcodes( $shortcodes );
 			$content = $this->plugin_list_html() . $content;
 			$this->remove_shortcodes( $shortcodes );

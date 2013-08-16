@@ -107,12 +107,12 @@ class CWS_I_Make_Plugins {
 		_e( '<p>This controls what will be displayed on the container page. You can use the following tags to loop through the plugins:</p>
 		<p><code>[implist]</code>&mdash;<code>[/implist]</code></p>
 		<p>Within that loop, you can use the following tags:</p>
-		<p><code>[implist_name]</code> <code>[implist_url]</code> <code>[implist_version]</code> <code>[implist_desc]</code> <code>[implist_zip_url]</code> <code>[implist_banner-772x250]</code> <code>[implist_downloads]</code></p>', 'cws-imp' ); ?><textarea rows="20" cols="50" class="large-text code" id="cws_imp_plugin_list_template" name="cws_imp_plugin_list_template"><?php form_option( 'cws_imp_plugin_list_template' ); ?></textarea></fieldset><?php
+		<p><code>[implist_name]</code> <code>[implist_url]</code> <code>[implist_version]</code> <code>[implist_desc]</code> <code>[implist_zip_url]</code> <code>[implist_banner-772x250]</code> <code>[implist_downloads]</code> <code>[implist_rating]</code></p>', 'cws-imp' ); ?><textarea rows="20" cols="50" class="large-text code" id="cws_imp_plugin_list_template" name="cws_imp_plugin_list_template"><?php form_option( 'cws_imp_plugin_list_template' ); ?></textarea></fieldset><?php
 	}
 
 	function field_template() {
 		_e( '<p>This controls what will be displayed on each plugin page. You can use the following tags:</p>
-		<p><code>[imp_name]</code> <code>[imp_url]</code> <code>[imp_zip_url]</code> <code>[imp_full_desc]</code> <code>[imp_version]</code> <code>[imp_banner-772x250]</code> <code>[imp_changelog]</code> <code>[imp_faq]</code> <code>[imp_installation]</code> <code>[imp_min_version]</code> <code>[imp_tested_version]</code> <code>[imp_slug]</code> <code>[imp_downloads]</code> <code>[imp_screenshots]</code> <code>[imp_other_notes]</code></p>
+		<p><code>[imp_name]</code> <code>[imp_url]</code> <code>[imp_zip_url]</code> <code>[imp_full_desc]</code> <code>[imp_version]</code> <code>[imp_banner-772x250]</code> <code>[imp_changelog]</code> <code>[imp_faq]</code> <code>[imp_installation]</code> <code>[imp_min_version]</code> <code>[imp_tested_version]</code> <code>[imp_slug]</code> <code>[imp_downloads]</code> <code>[imp_rating]</code> <code>[imp_screenshots]</code> <code>[imp_other_notes]</code></p>
 		<p>An example advanced FAQ loop format is as follows:</p>
 		<p><code>[imp_faq]</code><br />&mdash;Q. <code>[imp_faq_question]</code><br />&mdash;A. <code>[imp_faq_answer]</code><br /><code>[/imp_faq]</code></p>
 		<p>An example advanced Changelog loop format is as follows:</p>
@@ -339,6 +339,10 @@ class CWS_I_Make_Plugins {
 			case 'implist_downloads' :
 				return isset( $this->readme->downloaded ) ? $this->readme->downloaded : '';
 				break;
+			case 'imp_rating' :
+			case 'implist_rating' :
+				return isset( $this->readme->rating ) ? $this->readme->rating : '';
+				break;
 			case 'imp_banner-772x250' :
 			case 'implist_banner-772x250' :
 				return isset( $this->readme->banners['772x250'] ) ? $this->readme->banners['772x250'] : '';
@@ -399,7 +403,7 @@ class CWS_I_Make_Plugins {
 			return $content;
 		} else {
 			$this->prevent_recursion = true;
-			$shortcodes = array( 'implist', 'implist_name', 'implist_url', 'implist_version', 'implist_desc', 'implist_downloads', 'implist_zip_url', 'implist_banner-772x250' );
+			$shortcodes = array( 'implist', 'implist_name', 'implist_url', 'implist_version', 'implist_desc', 'implist_downloads', 'implist_rating', 'implist_zip_url', 'implist_banner-772x250' );
 			$this->add_shortcodes( $shortcodes );
 			$content = $this->plugin_list_html() . $content;
 			$this->remove_shortcodes( $shortcodes );
@@ -474,7 +478,7 @@ class CWS_I_Make_Plugins {
 		if ( $this->is_plugin( $post ) ) {
 			$this->readme = $this->get_plugin_readme( $post->ID );
 			if ( $this->readme ) {
-				$shortcodes = array( 'imp_name', 'imp_url', 'imp_zip_url', 'imp_full_desc', 'imp_installation', 'imp_changelog', 'imp_faq', 'imp_version', 'imp_min_version', 'imp_tested_version', 'imp_slug', 'imp_downloads', 'imp_screenshots', 'imp_other_notes', 'imp_banner-772x250' );
+				$shortcodes = array( 'imp_name', 'imp_url', 'imp_zip_url', 'imp_full_desc', 'imp_installation', 'imp_changelog', 'imp_faq', 'imp_version', 'imp_min_version', 'imp_tested_version', 'imp_slug', 'imp_downloads', 'imp_rating', 'imp_screenshots', 'imp_other_notes', 'imp_banner-772x250' );
 				$this->add_shortcodes( $shortcodes );
 				$content = '';
 				$content .= do_shortcode( get_option( 'cws_imp_plugin_template' ) );

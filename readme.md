@@ -7,7 +7,7 @@ Donate link: http://txfx.net/wordpress-plugins/donate/
 Tags: plugin, directory, list, plugin directory  
 Requires at least: 3.3  
 Tested up to: 3.4  
-Stable tag: 1.2.2  
+Stable tag: 1.2.3  
 
 For plugin authors. Showcase your plugins on your WordPress site. You only update your readme.txt files!
 
@@ -45,6 +45,9 @@ Blanks out the description for non-repo plugin pages. Fixes serialization issues
 Big release! Background plugin updating. Shortcodes for plugin banner, negative logic, screenshots, zip URL, other notes. Can wrap content around the plugin list. Hooks for advanced users. Bug fixes.
 
 ## Changelog ##
+
+### 1.2.3 ###
+* Bumping compatibility.
 
 ### 1.2.2 ###
 * Fixed a self-removing hook which could lead to some breakage.

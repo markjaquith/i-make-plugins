@@ -2,12 +2,12 @@
 
 [![Build Status](https://travis-ci.org/markjaquith/i-make-plugins.png?branch=master)](https://travis-ci.org/markjaquith/i-make-plugins)  
 
-Contributors: markjaquith, sivel  
-Donate link: http://txfx.net/wordpress-plugins/donate/  
-Tags: plugin, directory, list, plugin directory  
-Requires at least: 3.3  
-Tested up to: 3.4  
-Stable tag: 1.2.3  
+Contributors: markjaquith, sivel
+Donate link: http://txfx.net/wordpress-plugins/donate/
+Tags: plugin, directory, list, plugin directory
+Requires at least: 3.3
+Tested up to: 4.6
+Stable tag: 1.2.3
 
 For plugin authors. Showcase your plugins on your WordPress site. You only update your readme.txt files!
 

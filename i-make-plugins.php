@@ -107,7 +107,9 @@ class CWS_I_Make_Plugins {
 		_e( '<p>This controls what will be displayed on the container page. You can use the following tags to loop through the plugins:</p>
 		<p><code>[implist]</code>&mdash;<code>[/implist]</code></p>
 		<p>Within that loop, you can use the following tags:</p>
-		<p><code>[implist_name]</code> <code>[implist_url]</code> <code>[implist_version]</code> <code>[implist_desc]</code> <code>[implist_zip_url]</code> <code>[implist_banner-772x250]</code></p>', 'cws-imp' ); ?><textarea rows="20" cols="50" class="large-text code" id="cws_imp_plugin_list_template" name="cws_imp_plugin_list_template"><?php form_option( 'cws_imp_plugin_list_template' ); ?></textarea></fieldset><?php
+		<p><code>[implist_name]</code> <code>[implist_url]</code> <code>[implist_version]</code> <code>[implist_desc]</code> <code>[implist_zip_url]</code> <code>[implist_banner-772x250]</code></p>
+		<p>If you want to refer to the content that is present in the page, then use the following tag:</p>
+		<p><code>[implist_page_content]</code</p>', 'cws-imp' ); ?><textarea rows="20" cols="50" class="large-text code" id="cws_imp_plugin_list_template" name="cws_imp_plugin_list_template"><?php form_option( 'cws_imp_plugin_list_template' ); ?></textarea></fieldset><?php
 	}
 
 	function field_template() {
@@ -116,7 +118,9 @@ class CWS_I_Make_Plugins {
 		<p>An example advanced FAQ loop format is as follows:</p>
 		<p><code>[imp_faq]</code><br />&mdash;Q. <code>[imp_faq_question]</code><br />&mdash;A. <code>[imp_faq_answer]</code><br /><code>[/imp_faq]</code></p>
 		<p>An example advanced Changelog loop format is as follows:</p>
-		<p><code>[imp_changelog]</code><br />&mdash;<code>[imp_changelog_version]</code><br />&mdash;&mdash;<code>[imp_changelog_changes]</code><br />&mdash;&mdash;&mdash;<code>[imp_changelog_change]</code><br />&mdash;&mdash;<code>[/imp_changelog_changes]</code><br /><code>[/imp_changelog]</code></p>', 'cws-imp' ); ?>
+		<p><code>[imp_changelog]</code><br />&mdash;<code>[imp_changelog_version]</code><br />&mdash;&mdash;<code>[imp_changelog_changes]</code><br />&mdash;&mdash;&mdash;<code>[imp_changelog_change]</code><br />&mdash;&mdash;<code>[/imp_changelog_changes]</code><br /><code>[/imp_changelog]</code></p>
+		<p>If you want to refer to the content that is present in the page, then use the following tag:</p>
+		<p><code>[imp_page_content]</code</p>', 'cws-imp' ); ?>
 		<textarea rows="20" cols="50" class="large-text code" id="cws_imp_plugin_template" name="cws_imp_plugin_template"><?php form_option( 'cws_imp_plugin_template' ); ?></textarea><?php
 	}
 
@@ -229,10 +233,16 @@ class CWS_I_Make_Plugins {
 		return false;
 	}
 
-	function plugin_list_html() {
+	function plugin_list_html( $content = '' ) {
 		global $post;
 		$temp_post = $post; // Backup
-		$return = do_shortcode( get_option( 'cws_imp_plugin_list_template' ) );
+		$template = get_option( 'cws_imp_plugin_list_template' );
+		if ( false !== strpos( $template, '[implist_page_content]' ) ) {
+			$new_content = str_replace( '[implist_page_content]', $content, $template );
+		} else {
+			$new_content = $template . $content;
+		}
+		$return = do_shortcode( $new_content );
 		$post = $temp_post; // Restore
 		return $return;
 	}
@@ -336,7 +346,16 @@ class CWS_I_Make_Plugins {
 				return isset( $this->readme->slug ) ? $this->readme->slug : '';
 				break;
 			case 'imp_downloads' :
-				return isset( $this->readme->downloaded ) ? $this->readme->downloaded : '';
+                $downloads_attr = shortcode_atts( array( 'format' => true), $atts );
+				if ( isset( $this->readme->downloaded ) ) {
+					if ( $downloads_attr['format'] == true ) {
+						return number_format( $this->readme->downloaded );
+					} else {
+						return $this->readme->downloaded;
+					}
+				} else {
+					return '';
+				}
 				break;
 			case 'imp_banner-772x250' :
 			case 'implist_banner-772x250' :
@@ -400,7 +419,7 @@ class CWS_I_Make_Plugins {
 			$this->prevent_recursion = true;
 			$shortcodes = array( 'implist', 'implist_name', 'implist_url', 'implist_version', 'implist_desc', 'implist_zip_url', 'implist_banner-772x250' );
 			$this->add_shortcodes( $shortcodes );
-			$content = $this->plugin_list_html() . $content;
+			$content = $this->plugin_list_html( $content );
 			$this->remove_shortcodes( $shortcodes );
 			$this->prevent_recursion = false;
 			return $content;
@@ -475,8 +494,13 @@ class CWS_I_Make_Plugins {
 			if ( $this->readme ) {
 				$shortcodes = array( 'imp_name', 'imp_url', 'imp_zip_url', 'imp_full_desc', 'imp_installation', 'imp_changelog', 'imp_faq', 'imp_version', 'imp_min_version', 'imp_tested_version', 'imp_slug', 'imp_downloads', 'imp_screenshots', 'imp_other_notes', 'imp_banner-772x250' );
 				$this->add_shortcodes( $shortcodes );
-				$content = '';
-				$content .= do_shortcode( get_option( 'cws_imp_plugin_template' ) );
+				$template = get_option( 'cws_imp_plugin_template' );
+				if ( false !== strpos( $template, '[imp_page_content]' ) ) {
+					$new_content = str_replace( '[imp_page_content]', $content, $template );
+				} else {
+					$new_content = $template . $content;
+				}
+				$content = do_shortcode( $new_content );
 				$this->remove_shortcodes( $shortcodes );
 			}
 			$content = apply_filters( 'cws_imp_plugin_body', $content );
